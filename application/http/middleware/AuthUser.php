@@ -11,6 +11,7 @@ class AuthUser
     public function handle($request, \Closure $next)
     {
         /*获取token先在.htaccess中加入 SetEnvIf Authorization ^(.*) HTTP_AUTHORIZATION=$1 */
+        /* 判断有没有Authorization头 */
         $Auth = Request::header('Authorization');
         if (!$Auth){
             return response()->data(SerPublic::ApiJson('', 200, '未登录'));
