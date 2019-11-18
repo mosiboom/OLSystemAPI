@@ -42,9 +42,10 @@ class SerJwtToken
     /**
      * 验证token是否有效,默认验证exp,nbf,iat时间
      * @param string $Token 需要验证的token
+     * @param string $type token类型
      * @return bool|string|array
      */
-    public static function verifyToken(string $Token)
+    public static function verifyToken(string $Token,string $type ="access")
     {
         $tokens = explode('.', $Token);
         if (count($tokens) != 3)
@@ -66,7 +67,6 @@ class SerJwtToken
 
 
         $payload = json_decode(self::base64UrlDecode($base64payload), JSON_OBJECT_AS_ARRAY);
-
         //签发时间大于当前服务器时间验证失败
         if (isset($payload['iat']) && $payload['iat'] > time()) {
             return self::returnCode(3);
@@ -74,9 +74,16 @@ class SerJwtToken
 
 
         //过期时间小于当前服务器时间验证失败
-        if (isset($payload['exp']) && $payload['exp'] < time()) {
-            return self::returnCode(4, false, $payload['refresh_id']);
+        if ($type=='access'){
+            if (isset($payload['exp']) && $payload['exp'] < time()) {
+                return self::returnCode(4, false, $payload['refresh_id']);
+            }
+        }else{
+            if (isset($payload['exp']) && $payload['exp'] < time()) {
+                return self::returnCode(4, false);
+            }
         }
+
 
 
         //该nbf时间之前不接收处理该Token

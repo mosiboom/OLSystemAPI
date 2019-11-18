@@ -2,7 +2,7 @@
 
 Route::get('/index', 'index/index');
 Route::get('/loginTest', function () {
-    echo 1;
+    echo "登录成功";
 })->middleware('auth');
 
 Route::post('/auth/token/refresh', 'login/refresh');

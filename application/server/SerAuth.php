@@ -2,17 +2,14 @@
 
 namespace app\server;
 
-use think\{Config, cache\driver\Redis};
+use think\{cache\driver\Redis};
 
 class SerAuth
 {
-    private static $conf;
-
-    public function __construct()
+    public static function loadConf($conf)
     {
-        self::$conf = config()['jwt'];
+        return config()['jwt'][$conf];
     }
-
 
     /*生成token组*/
     public static function makeToken($uid)
@@ -25,7 +22,7 @@ class SerAuth
         return array(
             'access_token' => $access['token'],
             'refresh_token' => $refresh['token'],
-            'expires_in' => time() + self::$conf['refresh_token_expire_time']
+            'expires_in' => time() + self::loadConf('refresh_token_expire_time')
         );
     }
 
@@ -39,7 +36,7 @@ class SerAuth
         return [
             'token' => $token['access_token'],
             'auth_id' => md5($token['refresh_token']),
-            'expires_in' => time() + self::$conf['refresh_token_expire_time']
+            'expires_in' => time() + self::loadConf('refresh_token_expire_time')
         ];
     }
 
@@ -53,10 +50,11 @@ class SerAuth
     public static function makeAccessToken($uid, $refresh_id, $return_jti = false)
     {
         $jti = md5(uniqid('JWT') . time());
+        $exp = self::loadConf('access_token_expire_time');
         $data = array(
             'iss' => 'Jasper', //该JWT的签发者
             'iat' => time(), //签发时间
-            'exp' => time() + self::$conf['access_token_expire_time'], //过期时间
+            'exp' => time() + $exp, //过期时间
             'nbf' => time() + 10, //该时间之前不接收处理该Token
             'uid' => $uid,
             'type' => 'access',
@@ -81,10 +79,11 @@ class SerAuth
     public static function makeRefreshToken($uid, $return_jti = false)
     {
         $jti = md5(uniqid('JWT') . time());
+        $exp = self::loadConf('refresh_token_expire_time');
         $data = array(
             'iss' => 'Jasper', //该JWT的签发者
             'iat' => time(), //签发时间
-            'exp' => time() + self::$conf['refresh_token_expire_time'], //过期时间
+            'exp' => time() + $exp, //过期时间
             'nbf' => time() + 60, //该时间之前不接收处理该Token
             'uid' => $uid,
             'type' => 'refresh',
@@ -125,7 +124,7 @@ class SerAuth
         $refresh_id = $res['jti'];
         $redis = new Redis();
         $refresh = $redis->get("auth_refresh_$refresh_id");//获取在缓存里的refresh_token
-        if ($auth_id == $refresh) { //校验$auth_id是否合格
+        if ($auth_id == md5($refresh)) { //校验$auth_id是否合格
             $token = self::accessFromRefresh($refresh);
         } else {
             return 201;
@@ -143,7 +142,7 @@ class SerAuth
     static function accessFromRefresh(string $refresh_token)
     {
         /*验证refresh_token是否有效*/
-        $res = SerJwtToken::verifyToken($refresh_token);
+        $res = SerJwtToken::verifyToken($refresh_token, 'refresh');
         if (!$res['payload']) {
             return false;
         }
@@ -151,6 +150,7 @@ class SerAuth
             return false;
         }
         /*校验refreshToken合法后生成新access_token*/
+
         return self::makeAccessToken($res['payload']['uid'], $res['payload']['jti']);
     }
 
