@@ -17,7 +17,7 @@ class Login
     public function refresh()
     {
         /*auth_id是md5加密过的refresh_token*/
-        $token = SerAuth::getFinalToken(Request::header('Authorization'));
+        $token = SerAuth::getFinalToken(Request::header('='));
         $auth_id = Request::post('auth_id');
         $return = SerAuth::makeNewAccess($token, $auth_id);
         if ($return == 201) {
