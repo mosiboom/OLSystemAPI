@@ -31,6 +31,8 @@ class Login
             );
             $url = "https://api.weixin.qq.com/sns/jscode2session";
             $return = get($url, $param);
+            /*$userInfo='{"nickName":"〔 _ 〕","gender":1,"language":"zh_CN","city":"Shantou","province":"Guangdong"}';
+            $return['openid']='123123123';*/
             if (isset($return['errcode'])) {
                 return SerPublic::ApiJson($return, '101', '小程序接口参数有误');
             }
