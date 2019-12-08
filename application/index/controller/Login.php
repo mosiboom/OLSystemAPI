@@ -31,12 +31,16 @@ class Login
             );
             $url = "https://api.weixin.qq.com/sns/jscode2session";
             $return = get($url, $param);
-            /*$userInfo='{"nickName":"〔 _ 〕","gender":1,"language":"zh_CN","city":"Shantou","province":"Guangdong"}';
-            $return['openid']='123123123';*/
+            //$userInfo='{"nickName":"〔 _ 〕","gender":1,"language":"zh_CN","city":"Shantou","province":"Guangdong"}';
+            //$return['openid']='123123123';
+
             if (isset($return['errcode'])) {
-                return SerPublic::ApiJson($return, '101', '小程序接口参数有误');
+                return SerPublic::ApiJson($return, 101, '小程序接口参数有误');
             }
             $userInfo_arr = json_decode($userInfo, true);
+            if (empty($userInfo_arr)){
+                throw new \RuntimeException('参数有误');
+            }
             $open_id = $return['openid'];
             $info = Db::table('user')->where('open_id', $open_id)->find();
             $data = array(
@@ -64,11 +68,11 @@ class Login
             );
             return SerPublic::ApiJson($token, 0, 'success');
         } catch (\RuntimeException $exception) {
-            return SerPublic::ApiJson('', '101', $exception->getMessage());
+            return SerPublic::ApiJson('', 101, $exception->getMessage());
         } catch (PDOException $e) {
-            return SerPublic::ApiJson('', '3001', $e->getMessage());
+            return SerPublic::ApiJson('', 3001, $e->getMessage());
         } catch (Exception $e) {
-            return SerPublic::ApiJson('', '3001', $e->getMessage());
+            return SerPublic::ApiJson('', 3001, $e->getMessage());
         }
     }
 
