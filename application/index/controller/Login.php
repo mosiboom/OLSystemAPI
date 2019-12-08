@@ -63,9 +63,9 @@ class Login
         } catch (\RuntimeException $exception) {
             return SerPublic::ApiJson('', '101', $exception->getMessage());
         } catch (PDOException $e) {
-            return SerPublic::ApiJson('', '301', $e->getMessage());
+            return SerPublic::ApiJson('', '3001', $e->getMessage());
         } catch (Exception $e) {
-            return SerPublic::ApiJson('', '301', $e->getMessage());
+            return SerPublic::ApiJson('', '3001', $e->getMessage());
         }
     }
 
