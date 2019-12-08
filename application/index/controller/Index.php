@@ -16,6 +16,7 @@ class Index
             'expire_in' => $data['expires_in']
         );
         return SerPublic::ApiJson($return, 0, 'success');
+
     }
 
 }

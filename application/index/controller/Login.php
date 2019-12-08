@@ -4,13 +4,69 @@ namespace app\index\controller;
 
 use app\server\SerAuth;
 use app\server\SerPublic;
+use http\Exception\RuntimeException;
+use think\Db;
+use think\Exception;
+use think\exception\PDOException;
 use think\facade\Request;
 
 class Login
 {
     public function index()
     {
-        return SerPublic::ApiJson(SerAuth::makeToken(9001), 0, 'success');
+        try {
+            $code = Request::post('code');
+            $userInfo = Request::post('userInfo');
+            if (!isset($code, $userInfo)) {
+                throw new \RuntimeException('参数有误');
+            }
+            $wechat_appid = "wx9d981291d7f9dd89";
+            $wechat_secret = "a944f7b6d01249376db4c81ba7c50e6c";
+            $param = array(
+                'js_code' => $code,
+                'appid' => $wechat_appid,
+                'secret' => $wechat_secret,
+                'grant_type' => 'authorization_code'
+            );
+            $url = "https://api.weixin.qq.com/sns/jscode2session";
+            $return = get($url, $param);
+            if ($return['errcode']) {
+                return SerPublic::ApiJson($return, '101', '小程序接口参数有误');
+            }
+            $userInfo_arr = json_decode($userInfo, true);
+            $open_id = $return['openid'];
+            $info = Db::table('user')->where('open_id', $open_id)->find();
+            $data = array(
+                'name' => $userInfo_arr['nickName'],
+                'sex' => $userInfo_arr['gender'],
+                'wechat_user' => $userInfo
+            );
+            if ($info) {
+                Db::table('user')->where('open_id', $open_id)->update($data);
+                $getToken = SerAuth::makeToken($open_id);
+                $token = array(
+                    'token' => $getToken['access_token'],
+                    'auth_id' => md5($getToken['refresh_token']),
+                    'expire_in' => $getToken['expires_in']
+                );
+                return SerPublic::ApiJson($token, 0, 'success');
+            }
+            $data['open_id'] = $open_id;
+            Db::name('user')->insert($data);
+            $getToken = SerAuth::makeToken($open_id);
+            $token = array(
+                'token' => $getToken['access_token'],
+                'auth_id' => md5($getToken['refresh_token']),
+                'expire_in' => $getToken['expires_in']
+            );
+            return SerPublic::ApiJson($token, 0, 'success');
+        } catch (\RuntimeException $exception) {
+            return SerPublic::ApiJson('', '101', $exception->getMessage());
+        } catch (PDOException $e) {
+            return SerPublic::ApiJson('', '301', $e->getMessage());
+        } catch (Exception $e) {
+            return SerPublic::ApiJson('', '301', $e->getMessage());
+        }
     }
 
     /*刷新Token*/
