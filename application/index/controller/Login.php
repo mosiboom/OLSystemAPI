@@ -15,11 +15,12 @@ class Login
     public function index()
     {
         try {
-            $code = Request::post('code');
+            $code = trim(Request::post('code'));
             $userInfo = Request::post('userInfo');
             if (!isset($code, $userInfo)) {
                 throw new \RuntimeException('参数有误');
             }
+
             $wechat_appid = "wx9d981291d7f9dd89";
             $wechat_secret = "a944f7b6d01249376db4c81ba7c50e6c";
             $param = array(
@@ -30,7 +31,7 @@ class Login
             );
             $url = "https://api.weixin.qq.com/sns/jscode2session";
             $return = get($url, $param);
-            if ($return['errcode']) {
+            if (isset($return['errcode'])) {
                 return SerPublic::ApiJson($return, '101', '小程序接口参数有误');
             }
             $userInfo_arr = json_decode($userInfo, true);
