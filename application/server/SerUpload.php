@@ -1,5 +1,5 @@
 <?php
-namespace app\server;
+
 class SerUpload
 {
     /*定义文件上传对象*/
@@ -24,6 +24,9 @@ class SerUpload
     );
     /*返回值类型*/
     private $returnType;
+    private $win_os_arr = array(
+        'WIN32', 'WINNT', 'Windows'
+    );
 
     /*
      * @param string $uploadName,$_FILES[$uploadName]
@@ -76,17 +79,24 @@ class SerUpload
             return $this->returnType(false, '缺少上传目录参数');
         }
         if (!is_dir($this->config['filePath'])) {
-            mkdir($this->config['filePath'], 0777, TRUE);
+            $dir = iconv("UTF-8", "GBK", $this->config['filePath']);
+            mkdir($dir, 0777, TRUE);
         }
         if ($this->config['original']) {
             $fileName = $this->fileOBJ["name"];
             if ($this->config['is_tmp']) {
                 $fileName = $fileName . '.tmp';
             }
-            $re = move_uploaded_file($this->fileOBJ["tmp_name"], $this->config['filePath'] . $fileName);
+
+            if (in_array(PHP_OS, $this->win_os_arr)) {
+                $re = move_uploaded_file($this->fileOBJ["tmp_name"], iconv('UTF-8', 'gb2312', $this->config['filePath'] . $fileName));
+            } else {
+                $re = move_uploaded_file($this->fileOBJ["tmp_name"], $this->config['filePath'] . $fileName);
+            }
+
         } else {
-            $suffixArr = explode('.',$this->fileOBJ["name"]);
-            $suffix = ".".$suffixArr[count($suffixArr)-1];
+            $suffixArr = explode('.', $this->fileOBJ["name"]);
+            $suffix = "." . $suffixArr[count($suffixArr) - 1];
             if ($this->config['fileName'] == '') {
                 return $this->returnType(false, '缺少文件名称');
             }
@@ -94,8 +104,12 @@ class SerUpload
             if ($this->config['is_tmp']) {
                 $fileName = $fileName . '.tmp';
             }
-
-            $re = move_uploaded_file($this->fileOBJ["tmp_name"], $this->config['filePath'] . $fileName);
+            /*判断操作系统*/
+            if (in_array(PHP_OS, $this->win_os_arr)) {
+                $re = move_uploaded_file($this->fileOBJ["tmp_name"], iconv('UTF-8', 'gb2312', $this->config['filePath'] . $fileName));
+            } else {
+                $re = move_uploaded_file($this->fileOBJ["tmp_name"], $this->config['filePath'] . $fileName);
+            }
         }
 
         if (!$re) {
@@ -213,8 +227,8 @@ class SerUpload
     private function typeUpload($array)
     {
 //        $suffix = strstr($this->fileOBJ["name"], '.');
-        $suffixArr = explode('.',$this->fileOBJ["name"]);
-        $suffix = ".".$suffixArr[count($suffixArr)-1];
+        $suffixArr = explode('.', $this->fileOBJ["name"]);
+        $suffix = "." . $suffixArr[count($suffixArr) - 1];
         $typeArr = $this->config['typeArr'];
         $newArray = array();
         if (!empty($typeArr)) {
