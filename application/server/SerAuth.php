@@ -138,7 +138,7 @@ class SerAuth
      * @param string $refresh_token
      * @return bool|string
      * */
-    public
+
     static function accessFromRefresh(string $refresh_token)
     {
         /*验证refresh_token是否有效*/

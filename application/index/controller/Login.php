@@ -38,7 +38,7 @@ class Login
                 return SerPublic::ApiJson($return, 101, '小程序接口参数有误');
             }
             $userInfo_arr = json_decode($userInfo, true);
-            if (empty($userInfo_arr)){
+            if (empty($userInfo_arr)) {
                 throw new \RuntimeException('参数有误');
             }
             $open_id = $return['openid'];
@@ -79,21 +79,30 @@ class Login
     /*刷新Token*/
     public function refresh()
     {
-        /*auth_id是md5加密过的refresh_token*/
-        $token = SerAuth::getFinalToken(Request::header('='));
-        $auth_id = Request::post('auth_id');
-        $return = SerAuth::makeNewAccess($token, $auth_id);
-        if ($return == 201) {
-            return SerPublic::ApiJson('', 201, 'request failed');
-        } elseif ($return == 202) {
-            return SerPublic::ApiJson('', 202, 'request failed');
+        try {
+            /*auth_id是md5加密过的refresh_token*/
+            $Auth = Request::header('Authorization');
+            $auth_id = Request::post('auth_id');
+            if (!isset($Auth, $auth_id)) {
+                throw new \RuntimeException('参数有误');
+            }
+            $token = SerAuth::getFinalToken($Auth);
+            $return = SerAuth::makeNewAccess($token, $auth_id);
+            if ($return == 201) {
+                return SerPublic::ApiJson('', 201, 'request failed');
+            } elseif ($return == 202) {
+                return SerPublic::ApiJson('', 202, 'request failed');
+            }
+            $newToken = array(
+                'token' => $return,
+                'auth_id' => $auth_id,
+                'expires_in' => time() + 72000
+            );
+            return SerPublic::ApiJson($newToken, 0, 'success');
+        } catch (\RuntimeException $exception) {
+            return SerPublic::ApiJson('', 101, $exception->getMessage());
         }
-        $newToken = array(
-            'token' => $return,
-            'auth_id' => $auth_id,
-            'expires_in' => time() + 72000
-        );
-        return SerPublic::ApiJson($newToken, 0, 'success');
+
     }
 
 }
