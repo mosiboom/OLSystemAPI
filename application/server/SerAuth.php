@@ -126,32 +126,38 @@ class SerAuth
         $refresh = $redis->get("auth_refresh_$refresh_id");//获取在缓存里的refresh_token
         if ($auth_id == md5($refresh)) { //校验$auth_id是否合格
             $token = self::accessFromRefresh($refresh);
+            if (!$token['status']) {
+                return $token['code'];
+            }
         } else {
             return 201;
         }
         /*token合法*/
-        return $token;
+        return $token['data'];
     }
 
     /**
      * 根据refresh_token生成新token
      * @param string $refresh_token
-     * @return bool|string
+     * @return array
      * */
 
     static function accessFromRefresh(string $refresh_token)
     {
         /*验证refresh_token是否有效*/
         $res = SerJwtToken::verifyToken($refresh_token, 'refresh');
+        if ($res['code'] != 0) {
+            $code = $res['code'] == 4 ? 202 : 201;
+            return array('code' => $code, 'status' => false, 'data' => '');
+        }
         if (!$res['payload']) {
-            return false;
+            return array('code' => 201, 'status' => false, 'data' => '');
         }
         if ($res['payload']['type'] != 'refresh') {
-            return false;
+            return array('code' => 201, 'status' => false, 'data' => '');
         }
         /*校验refreshToken合法后生成新access_token*/
-
-        return self::makeAccessToken($res['payload']['uid'], $res['payload']['jti']);
+        return array('code' => $res['code'], 'status' => true, 'data' => self::makeAccessToken($res['payload']['uid'], $res['payload']['jti']));
     }
 
     /*获取纯token*/
