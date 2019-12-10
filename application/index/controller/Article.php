@@ -17,9 +17,11 @@ class Article extends Controller
         try {
             $offset = Request::get('offset', 1);
             $data = Db::table('article')->where('status', '1')
+                ->alias('a')
+                ->join('article_category ac', 'ac.id=a.cat_id')
                 ->order('hot', 'desc')
                 ->page($offset, '20')
-                ->field('id,hot,title,desc,create_time,update_time,author,cover_url,cat_id')
+                ->field('a.id,name as cat_name,hot,title,desc,create_time,update_time,author,cover_url,cat_id')
                 ->select();
             foreach ($data as $k => $v) {
                 $data[$k]['create_time'] = date('Y-m-d H:i', $v['create_time']);
