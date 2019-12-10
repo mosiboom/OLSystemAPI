@@ -2,7 +2,6 @@
 
 namespace app\index\controller;
 
-use League\HTMLToMarkdown\HtmlConverter;
 use think\Controller;
 use think\Db;
 
