@@ -11,7 +11,7 @@
 
 // 应用公共文件
 
-function post($url, $param = array())
+function post($url, $param = array(), $header = array())
 {
     try {
         if (!is_array($param)) {
@@ -19,12 +19,12 @@ function post($url, $param = array())
             throw new RuntimeException("参数必须为array");
 
         }
-
+        $header = array_merge(array("Content-type:application/json", "Accept:application/json"), $header);
         $http = curl_init($url);
-
+        dump($header);
         curl_setopt($http, CURLOPT_SSL_VERIFYPEER, 0);
 
-        curl_setopt($http, CURLOPT_SSL_VERIFYHOST, 1);
+        curl_setopt($http, CURLOPT_SSL_VERIFYHOST, 2);
 
         curl_setopt($http, CURLOPT_RETURNTRANSFER, 1);
 
@@ -38,6 +38,8 @@ function post($url, $param = array())
 
         curl_setopt($http, CURLOPT_HEADER, 1);
 
+        curl_setopt($http, CURLOPT_HTTPHEADER, $header);
+
         $rst = curl_exec($http);
 
         curl_close($http);
@@ -49,7 +51,53 @@ function post($url, $param = array())
 
 }
 
-function get($url, $param = array())
+
+function postRaw($url, $param, $header = array())
+{
+    try {
+        $header = array_merge(array("Content-type:application/json", "Accept:application/json"), $header);
+        $http = curl_init($url);
+        curl_setopt($http, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($http, CURLOPT_SSL_VERIFYHOST, 2);
+        curl_setopt($http, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($http, CURLOPT_USERAGENT, "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
+        curl_setopt($http, CURLOPT_POST, 1);//设置为POST方式
+        if (!is_array($param)) {
+            curl_setopt($http, CURLOPT_POSTFIELDS, $param);
+        } else {
+            curl_setopt($http, CURLOPT_POSTFIELDS, json_encode($param));
+        }
+        curl_setopt($http, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($http, CURLOPT_HEADER, 1);
+        curl_setopt($http, CURLOPT_HTTPHEADER, $header);
+        $rst = curl_exec($http);
+        $headerSize = curl_getinfo($http, CURLINFO_HEADER_SIZE);
+        $headerTotal = strlen($rst);
+        $bodySize = $headerTotal - $headerSize;
+        $header = substr($rst, 0, $headerSize);
+        $comma_separated = explode("\r\n", $header);
+        $arr = array();
+        foreach ($comma_separated as $value) {
+            if (strpos($value, ':') !== false) {
+                $a = explode(":", $value);
+                $key = $a[0];
+                $v = $a[1];
+                $arr[$key] = $v;
+            } else {
+                array_push($arr, $value);
+            }
+        }
+        $body = substr($rst, $headerSize, $bodySize);
+        curl_close($http);
+
+        return $body;
+    } catch (RuntimeException $exception) {
+        echo $exception->getMessage();
+    }
+
+}
+
+function get($url, $param = array(), $headerArr = array(), $is_json = true)
 {
     try {
         if (!is_array($param)) {
@@ -62,16 +110,20 @@ function get($url, $param = array())
             }
             $url = substr($url, 0, -1);
         }
-        $headerArray = array("Content-type:application/json;", "Accept:application/json");
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headerArray);
-        $output = curl_exec($ch);
-        curl_close($ch);
-        $output = json_decode($output, true);
+        $headerArray = array_merge(array("Content-type:application/json;", "Accept:application/json"), $headerArr);
+        $http = curl_init();
+        curl_setopt($http, CURLOPT_URL, $url);
+        curl_setopt($http, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($http, CURLOPT_SSL_VERIFYHOST, 2);
+        curl_setopt($http, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($http, CURLOPT_USERAGENT, "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
+        curl_setopt($http, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($http, CURLOPT_HTTPHEADER, $headerArray);
+        $output = curl_exec($http);
+        curl_close($http);
+        if ($is_json) {
+            $output = json_decode($output, true);
+        }
         return $output;
     } catch (RuntimeException $exception) {
         echo $exception->getMessage();

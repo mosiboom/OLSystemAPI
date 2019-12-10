@@ -4,7 +4,6 @@ namespace app\index\controller;
 
 use app\server\SerAuth;
 use app\server\SerPublic;
-use http\Exception\RuntimeException;
 use think\Db;
 use think\Exception;
 use think\exception\PDOException;

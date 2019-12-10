@@ -21,3 +21,4 @@ Route::get('/test',function (){
     dump(md5($tokenArr['refresh_token']));
 
 });
+Route::get('/getJueJin','index/getJueJinArticle');
