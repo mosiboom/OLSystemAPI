@@ -12,7 +12,7 @@ Route::post('/token/refresh', 'login/refresh');
 
 /*文章相关接口*/
 Route::get('/article/get','article/getAll');
-
+Route::get('/article/one','article/getOne');
 Route::get('/loginTest', function () {
     $open_id = Request::param('payload')['uid'];
     echo "用户已登录，这是用户的id：" . $open_id;

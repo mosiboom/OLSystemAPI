@@ -39,4 +39,32 @@ class Article extends Controller
             return SerPublic::ApiJson('', 3001, $e->getMessage());
         }
     }
+
+    public function getOne()
+    {
+        try {
+            $id = Request::get('id');
+            if (!$id) {
+                throw new \RuntimeException('参数有误');
+            }
+            $info = Db::table('article')
+                ->where('id', $id)
+                ->field('*')
+                ->find();
+            if (!$info) {
+                throw new DataNotFoundException('数据不存在！');
+            }
+            $info['create_time'] = date('Y-m-d H:i', $info['create_time']);
+            $info['update_time'] = date('Y-m-d H:i', $info['update_time']);
+            return SerPublic::ApiJson($info, 0, 'success');
+        } catch (\RuntimeException $exception) {
+            return SerPublic::ApiJson('', 101, $exception->getMessage());
+        } catch (DataNotFoundException $e) {
+            return SerPublic::ApiJson('', 3002, $e->getMessage());
+        } catch (ModelNotFoundException $e) {
+            return SerPublic::ApiJson('', 3002, $e->getMessage());
+        } catch (DbException $e) {
+            return SerPublic::ApiJson('', 3001, $e->getMessage());
+        }
+    }
 }
