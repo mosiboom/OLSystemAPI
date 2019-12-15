@@ -169,7 +169,7 @@ class Article extends Controller
             if (!$data) {
                 throw new DataNotFoundException('该分类没有数据！');
             }
-            return SerPublic::ApiSuccess($data);
+            return SerPublic::ApiSuccess(array('data' => $data, 'nextPage' => $offset + 1));
         } catch (\RuntimeException $exception) {
             return SerPublic::ApiJson('', 101, $exception->getMessage());
         } catch (DataNotFoundException $e) {
