@@ -13,7 +13,8 @@ Route::get('/article/get', 'article/getAll');
 Route::get('/article/detail', 'article/getOne');
 Route::get('/article/comment/get', 'article/comment');
 Route::post('/article/comment/insert', 'article/insertComment')->middleware('auth');
-
+Route::get('/article/category', 'article/category');
+Route::get('/article/byCategory', 'article/byCategory');
 
 Route::get('/mockComment', 'article/mock');
 Route::get('/loginTest', function () {

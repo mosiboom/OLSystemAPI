@@ -23,6 +23,11 @@ class SerPublic
         return json_encode($return);
     }
 
+    public static function ApiSuccess($data)
+    {
+        return self::ApiJson($data, 0, 'success');
+    }
+
     /*上传文件静态接口*/
     public static function upload(string $uploadName, array $config = array(), string $returnType = 'array')
     {
