@@ -85,12 +85,12 @@ class Article extends Controller
     public function insertComment()
     {
         try {
-            //$user_id = Request::param('payload')['uid'];
-            $user_id = Request::post('open_id');
+            $user_id = Request::param('payload')['uid'];
+            //$user_id = Request::post('user_id');
             $content = Request::post('content');
             $article_id = Request::post('article_id');
             $pid = Request::post('pid');
-            if (!$user_id || !$content || !$article_id || !$pid)
+            if (!$user_id || !$content || !$article_id || $pid == "")
                 throw new \RuntimeException('参数有误！');
             $data = array(
                 'user_id' => $user_id,

@@ -8,22 +8,23 @@ Route::get('/index', 'index/index');
 Route::post('/login', 'login/index');
 Route::post('/logout', 'login/logout');
 Route::post('/token/refresh', 'login/refresh');
-
-
 /*文章相关接口*/
 Route::get('/article/get', 'article/getAll');
 Route::get('/article/detail', 'article/getOne');
-Route::get('/article/comment', 'article/comment');
+Route::get('/article/comment/get', 'article/comment');
+Route::post('/article/comment/insert', 'article/insertComment')->middleware('auth');
+
+
 Route::get('/mockComment', 'article/mock');
 Route::get('/loginTest', function () {
     $open_id = Request::param('payload')['uid'];
     echo "用户已登录，这是用户的id：" . $open_id;
 })->middleware('auth');
 Route::get('/test', function () {
-    /* $tokenArr=\app\server\SerAuth::makeToken('213123');
-     dump($tokenArr['access_token']);
-     dump(md5($tokenArr['refresh_token']));*/
-    dump(rand(100, 9999));
+    $tokenArr = \app\server\SerAuth::makeToken('213123');
+    dump($tokenArr['access_token']);
+    // dump(md5($tokenArr['refresh_token']));
+    //dump(rand(100, 9999));
 });
 
 Route::get('/script/run', 'script/run');
