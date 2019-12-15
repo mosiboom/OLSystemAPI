@@ -68,5 +68,20 @@ class SerPublic
         return SerPublic::upload('up', $config);
     }
 
-
+    /*递归无限制级数据*/
+    public static function actionClassData($data, $pid = 0)
+    {
+        $new_data = array();
+        $arr = array();
+        foreach ($data as $key => $val) {
+            if ($val['pid'] == $pid) {//当pid为0的话是个新的
+                $arr = $val;
+                unset($data[$key]);
+                $arr1 = self::actionClassData($data, $arr['id']);
+                $arr['list'] = $arr1;
+                $new_data[] = $arr;
+            }
+        }
+        return $new_data;
+    }
 }

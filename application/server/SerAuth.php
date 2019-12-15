@@ -160,7 +160,7 @@ class SerAuth
         return array('code' => $res['code'], 'status' => true, 'data' => self::makeAccessToken($res['payload']['uid'], $res['payload']['jti']));
     }
 
-    /*获取纯token*/
+    /*获取Bearer token*/
     public static function getFinalToken(string $token)
     {
         return trim(str_replace("Bearer", "", $token));

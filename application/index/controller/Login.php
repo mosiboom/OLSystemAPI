@@ -11,6 +11,7 @@ use think\facade\Request;
 
 class Login
 {
+    /*登录*/
     public function index()
     {
         try {
@@ -104,4 +105,9 @@ class Login
 
     }
 
+    /*退出登录*/
+    public function logout()
+    {
+        return SerPublic::ApiJson('', 0, '退出成功！');
+    }
 }
