@@ -114,7 +114,7 @@ class Article extends Controller
         try {
             $article_id = Request::get('article_id');
             $offset = Request::get('offset', 1);
-            if (!$article_id) throw new \RuntimeException('参数有误');
+            if (!$article_id || $offset) throw new \RuntimeException('参数有误');
             $data = Db::table('article_comment')
                 ->alias('ac')
                 ->join('user', 'user.open_id=ac.user_id')
@@ -124,7 +124,7 @@ class Article extends Controller
             $data = SerPublic::actionClassData($data, 0);
             $count = count($data);
             $num = ceil($count / 5);
-            if ($offset>$num){
+            if ($offset > $num) {
                 return SerPublic::ApiJson(array('nextPage' => '', 'data' => array()), 0, 'success');
             }
             $data = array_chunk($data, 5);
