@@ -16,6 +16,11 @@ header("Access-Control-Allow-Headers:DNT,X-Mx-ReqToken,Keep-Alive,User-Agent,X-R
 // 加载基础文件
 require __DIR__ . '/../thinkphp/base.php';
 
+//定义域名全局变量
+$host = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : $_SERVER['HTTP_HOST'];
+$domain = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : $_SERVER['REQUEST_SCHEME'] . "://" . $host;
+define('app_domain', $domain);
+
 // 支持事先使用静态方法设置Request对象和Config对象
 
 // 执行应用并响应

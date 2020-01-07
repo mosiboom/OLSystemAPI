@@ -8,15 +8,8 @@ Route::get('/index', 'index/index');
 Route::post('/login', 'login/index');
 Route::post('/logout', 'login/logout');
 Route::post('/token/refresh', 'login/refresh');
-/*文章相关接口*/
-Route::get('/article/get', 'article/getAll');
-Route::get('/article/detail', 'article/getOne');
-Route::get('/article/comment/get', 'article/comment');
-Route::post('/article/comment/insert', 'article/insertComment')->middleware('auth');
-Route::get('/article/category', 'article/category');
-Route::get('/article/byCategory', 'article/byCategory');
 
-Route::get('/mockComment', 'article/mock');
+//Route::get('/mockComment', 'article/mock');
 Route::get('/loginTest', function () {
     $open_id = Request::param('payload')['uid'];
     echo "用户已登录，这是用户的id：" . $open_id;
@@ -28,5 +21,11 @@ Route::get('/test', function () {
     //dump(rand(100, 9999));
 });
 
-Route::get('/script/run', 'script/run');
+Route::get('/test1', function () {
+    dump(Env::get('app_path'));
+    dump(config('exception_tmpl'));
+});
+
+/*Route::get('/script/run', 'script/run');
 Route::get('/getJueJin', 'index/getJueJinArticle');
+Route::get('/getImooc', 'index/getImoocClass');*/

@@ -32,12 +32,7 @@ class SerPublic
     public static function upload(string $uploadName, array $config = array(), string $returnType = 'array')
     {
         $upload = new SerUpload($uploadName, $config, $returnType);
-        $re = $upload->upload();
-        if ($re['status']) {
-            return self::ApiJson(array('fileName' => $re['fileName']), 0, $re['msg']);
-        } else {
-            return self::ApiJson('', 100, $re['msg']);
-        }
+        return $re = $upload->upload();
     }
 
     /*上传视频*/
@@ -54,7 +49,15 @@ class SerPublic
             'size' => '4096m',
             'is_tmp' => true
         );
-        return self::upload('uv', $config);
+        $re = self::upload('uv', $config);
+        if ($re['status']) {
+            return self::ApiJson(array(
+                'fileName' => $re['fileName'],
+                'url' => app_domain . $relative . $re['fileName']
+            ), 0, $re['msg']);
+        } else {
+            return self::ApiJson('', 100, $re['msg']);
+        }
     }
 
     /*上传图片*/
@@ -70,7 +73,35 @@ class SerPublic
             'size' => '4096m',
             'is_tmp' => true
         );
-        return SerPublic::upload('up', $config);
+        $re = self::upload('up', $config);
+        if ($re['status']) {
+            return self::ApiJson(array(
+                'fileName' => $re['fileName'],
+                'url' => app_domain . $relative . $re['fileName']
+            ), 0, $re['msg']);
+        } else {
+            return self::ApiJson('', 100, $re['msg']);
+        }
+    }
+
+    /**
+     * 去除上传文件的tmp后缀
+     * @param $tmp_url //带有tmp的url
+     * @return string | bool  //返回处理完的url
+     */
+    public static function getWithoutTmp($tmp_url)
+    {
+        $path = str_replace(app_domain, $_SERVER['DOCUMENT_ROOT'], $tmp_url);
+
+        $new_path = strstr($path, '.tmp', true);
+
+        if (file_exists($path)) {
+            rename($path, $new_path);
+        } else {
+            return false;
+        }
+        $url = str_replace($_SERVER['DOCUMENT_ROOT'], app_domain, $tmp_url);
+        return $new_url = strstr($url, '.tmp', true);
     }
 
     /*递归无限制级数据*/

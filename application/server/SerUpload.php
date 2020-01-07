@@ -1,5 +1,6 @@
 <?php
 
+namespace app\server;
 class SerUpload
 {
     /*定义文件上传对象*/
