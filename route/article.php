@@ -1,7 +1,7 @@
 <?php
 /*文章相关接口*/
 
-use think\Facade\{Request, Route};
+use think\facade\{Request, Route};
 
 /*前台*/
 Route::group('/article', function () {

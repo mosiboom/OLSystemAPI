@@ -1,6 +1,6 @@
 <?php
 
-use think\Facade\{Request, Route};
+use think\facade\{Request, Route};
 
 //公共路由
 Route::group('/common', function () {

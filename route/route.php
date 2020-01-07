@@ -1,6 +1,6 @@
 <?php
 
-use think\Facade\{Request, Route};
+use think\facade\{Request, Route};
 
 Route::get('/', 'index/index');
 Route::get('/index', 'index/index');
