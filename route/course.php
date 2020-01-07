@@ -13,7 +13,7 @@ Route::group('/course', function () {
 Route::group('/admin/course', function () {
     Route::get('/all', 'getAll');
     Route::get('/one', 'getOne');
-    Route::post('/insert', 'insert');
+    Route::post('/insert', 'save');
     Route::post('/delete', 'delete');
-    Route::post('/patch', 'save');
+    Route::post('/patch/:id', 'save');
 })->prefix('admin/Course/');

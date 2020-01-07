@@ -7,6 +7,7 @@ use think\{Controller,
     Db,
     db\exception\DataNotFoundException,
     db\exception\ModelNotFoundException,
+    Exception,
     exception\DbException,
     facade\Request
 };
@@ -51,8 +52,8 @@ class Course extends Controller
     {
     }
 
-    /*添加课程*/
-    public function insert()
+    /*添加、更新课程*/
+    public function save()
     {
         try {
             $title = Request::post('title');
@@ -60,13 +61,10 @@ class Course extends Controller
             $teacher = Request::post('teacher', '暂无');
             $teacher_desc = Request::post('teacher_desc', '暂无');
             $cover_url = Request::post('cover_url');
-            $cover_url = SerPublic::getWithoutTmp($cover_url);
-            if (!$cover_url) {
-                throw new \RuntimeException('上传参数有误！');
-            }
             if (!isset($title, $desc, $cover_url)) {
                 throw new \RuntimeException('参数有误！');
             }
+            $id = request()->route('id');
             $data = [
                 'title' => $title,
                 'desc' => $desc,
@@ -78,19 +76,56 @@ class Course extends Controller
                 'hot' => 0,
                 'status' => 0
             ];
-            $id = Db::table('course')->insertGetId($data);
+            /*更新*/
             if ($id) {
-                return SerPublic::ApiSuccess(array('id' => $id));
+                $info = $this->info($id);
+                if (!$info) throw new DataNotFoundException('ID有误！');
+                if ($cover_url != $info['cover_url']) {
+                    //封面不一样说明更换了封面
+                    $cover_url = SerPublic::getWithoutTmp($cover_url);
+                    if (!$cover_url) {
+                        throw new \RuntimeException('上传参数有误！');
+                    }
+                    $data['cover_url'] = $cover_url;
+                }
+                $res = Db::table('course')->where('id', $id)->update($data);
+                if (!$res) throw new Exception('更新失败！');
+                return SerPublic::ApiSuccess('');
+            }
+            /*添加*/
+            $cover_url = SerPublic::getWithoutTmp($cover_url);
+            if (!$cover_url) {
+                throw new \RuntimeException('上传参数有误！');
+            }
+            $data['cover_url'] = $cover_url;
+            $insert_id = Db::table('course')->insertGetId($data);
+            if ($insert_id) {
+                return SerPublic::ApiSuccess(array('id' => $insert_id));
             }
         } catch (\RuntimeException $exception) {
             return SerPublic::ApiJson('', 101, $exception->getMessage());
+        } catch (DataNotFoundException $e) {
+            return SerPublic::ApiJson('', 3002, $e->getMessage());
+        } catch (ModelNotFoundException $e) {
+            return SerPublic::ApiJson('', 3002, $e->getMessage());
+        } catch (DbException $e) {
+            return SerPublic::ApiJson('', 3001, $e->getMessage());
+        } catch (Exception $e) {
+            return SerPublic::ApiJson('', 3003, $e->getMessage());
         }
-
     }
 
-    public function save()
+    private function info($id)
     {
-
+        try {
+            $info = Db::table('course')->where('id', $id)->find();
+            if (!$info) {
+                return false;
+            }
+            return $info;
+        } catch (DataNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
+        } catch (DbException $e) {
+        }
     }
-
 }

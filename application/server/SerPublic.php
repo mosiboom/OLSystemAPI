@@ -92,7 +92,6 @@ class SerPublic
     public static function getWithoutTmp($tmp_url)
     {
         $path = str_replace(app_domain, $_SERVER['DOCUMENT_ROOT'], $tmp_url);
-
         $new_path = strstr($path, '.tmp', true);
 
         if (file_exists($path)) {

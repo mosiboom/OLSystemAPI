@@ -15,8 +15,7 @@ Route::get('/test', function () {
 });
 
 Route::get('/test1', function () {
-    dump(Env::get('app_path'));
-    dump(config('exception_tmpl'));
+    dump(Request::path());
 });
 
 Route::get('/script/run', 'script/run');
