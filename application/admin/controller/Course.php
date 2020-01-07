@@ -79,7 +79,9 @@ class Course extends Controller
             /*更新*/
             if ($id) {
                 $info = $this->info($id);
+                $status = Request::post('status');
                 if (!$info) throw new DataNotFoundException('ID有误！');
+                if (!in_array($status, array(0, 1))) throw new \RuntimeException('参数有误！');
                 if ($cover_url != $info['cover_url']) {
                     //封面不一样说明更换了封面
                     $cover_url = SerPublic::getWithoutTmp($cover_url);
@@ -88,6 +90,8 @@ class Course extends Controller
                     }
                     $data['cover_url'] = $cover_url;
                 }
+                $data['status'] = $status;
+                unset($data['hot']);
                 $res = Db::table('course')->where('id', $id)->update($data);
                 if (!$res) throw new Exception('更新失败！');
                 return SerPublic::ApiSuccess('');
