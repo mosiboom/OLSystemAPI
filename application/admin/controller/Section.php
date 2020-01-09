@@ -18,10 +18,10 @@ class Section extends Controller
     public function getAll()
     {
         try {
-            $course_id = request()->route('course_id');
-            if (!isset($course_id)) throw new \RuntimeException('参数有误');
-            $data = Db::table('section')->where('course_id', $course_id)->select();
-            if (!$data) throw new DataNotFoundException('该课程未添加小节');
+            $id = Request::get('course_id');
+            if (!isset($id)) throw new \RuntimeException('参数有误');
+            $data['course'] = Db::table('course')->where('id', $id)->findOrFail();
+            $data['section'] = Db::table('section')->where('course_id', $id)->select();
             return SerPublic::ApiSuccess($data);
         } catch (\RuntimeException $e) {
             return SerPublic::ApiJson('', 101, $e->getMessage());
@@ -38,10 +38,45 @@ class Section extends Controller
 
     public function getOne()
     {
+        try {
+            $id = Request::get('id');
+            if (!isset($id)) throw new \RuntimeException('参数有误');
+            $data = Db::table('section')->where('id', $id)->findOrFail();
+            return SerPublic::ApiSuccess($data);
+        } catch (\RuntimeException $e) {
+            return SerPublic::ApiJson('', 101, $e->getMessage());
+        } catch (DataNotFoundException $e) {
+            return SerPublic::ApiJson('', 3002, $e->getMessage());
+        } catch (ModelNotFoundException $e) {
+            return SerPublic::ApiJson('', 3002, $e->getMessage());
+        } catch (DbException $e) {
+            return SerPublic::ApiJson('', 3001, $e->getMessage());
+        } catch (\Exception $e) {
+            return SerPublic::ApiJson('', 3003, $e->getMessage());
+        }
     }
 
     public function delete()
     {
+        try {
+            $id = Request::post('id');
+            if (!isset($id)) throw new \RuntimeException('参数有误');
+            $res = Db::table('section')->where('id', $id)->delete();
+            if (!$res) {
+                throw new DataNotFoundException('删除失败！');
+            }
+            return SerPublic::ApiSuccess();
+        } catch (\RuntimeException $e) {
+            return SerPublic::ApiJson('', 101, $e->getMessage());
+        } catch (DataNotFoundException $e) {
+            return SerPublic::ApiJson('', 3002, $e->getMessage());
+        } catch (ModelNotFoundException $e) {
+            return SerPublic::ApiJson('', 3002, $e->getMessage());
+        } catch (DbException $e) {
+            return SerPublic::ApiJson('', 3001, $e->getMessage());
+        } catch (\Exception $e) {
+            return SerPublic::ApiJson('', 3003, $e->getMessage());
+        }
     }
 
     public function insert()

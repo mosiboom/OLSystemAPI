@@ -118,6 +118,7 @@ class SerPublic
         //检测域名
         $url_domain = $_data['scheme'] . "://" . $_data['host'];
         if ($url_domain != app_domain) {
+            echo 1;
             return false;
         }
         $needle = '/static/upload/';
@@ -130,9 +131,11 @@ class SerPublic
                 break;
         }
         if (!strstr($_data['path'], $needle)) {
+            echo 2;
             return false;
         }
         if (getHttpCode($url) != '200') {
+            echo 3;
             return false;
         }
         return true;

@@ -3,7 +3,6 @@
 
 use think\facade\{Request, Route};
 
-
 Route::group('/admin/section', function () {
     Route::get('/all', 'getAll');
     Route::get('/one', 'getOne');
