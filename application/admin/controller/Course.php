@@ -84,9 +84,11 @@ class Course extends Controller
                 if (!in_array($status, array(0, 1))) throw new \RuntimeException('参数有误！');
                 if ($cover_url != $info['cover_url']) {
                     //封面不一样说明更换了封面
+                    if (SerPublic::checkUploadURL($cover_url, 'video'))
+                        throw new \RuntimeException('图片链接有误1！');
                     $cover_url = SerPublic::getWithoutTmp($cover_url);
                     if (!$cover_url) {
-                        throw new \RuntimeException('上传参数有误！');
+                        throw new \RuntimeException('图片链接有误2！');
                     }
                     $data['cover_url'] = $cover_url;
                 }
@@ -97,9 +99,11 @@ class Course extends Controller
                 return SerPublic::ApiSuccess('');
             }
             /*添加*/
+            if (SerPublic::checkUploadURL($cover_url, 'video'))
+                throw new \RuntimeException('图片链接有误1！');
             $cover_url = SerPublic::getWithoutTmp($cover_url);
             if (!$cover_url) {
-                throw new \RuntimeException('上传参数有误！');
+                throw new \RuntimeException('图片链接有误2！');
             }
             $data['cover_url'] = $cover_url;
             $insert_id = Db::table('course')->insertGetId($data);
@@ -132,4 +136,6 @@ class Course extends Controller
         } catch (DbException $e) {
         }
     }
+
+
 }

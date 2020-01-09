@@ -21,7 +21,7 @@ function post($url, $param = array(), $header = array())
         }
         $header = array_merge(array("Content-type:application/json", "Accept:application/json"), $header);
         $http = curl_init($url);
-        dump($header);
+
         curl_setopt($http, CURLOPT_SSL_VERIFYPEER, 0);
 
         curl_setopt($http, CURLOPT_SSL_VERIFYHOST, 2);
@@ -51,6 +51,46 @@ function post($url, $param = array(), $header = array())
 
 }
 
+/*获取http code*/
+function getHttpCode($url, $param = array(), $header = array())
+{
+    try {
+        if (!is_array($param)) {
+
+            throw new RuntimeException("参数必须为array");
+
+        }
+        $header = array_merge(array("Content-type:application/json", "Accept:application/json"), $header);
+        $http = curl_init($url);
+
+        curl_setopt($http, CURLOPT_SSL_VERIFYPEER, 0);
+
+        curl_setopt($http, CURLOPT_SSL_VERIFYHOST, 2);
+
+        curl_setopt($http, CURLOPT_RETURNTRANSFER, 1);
+
+        curl_setopt($http, CURLOPT_USERAGENT, "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
+
+        curl_setopt($http, CURLOPT_POST, 1);//设置为POST方式
+
+        curl_setopt($http, CURLOPT_POSTFIELDS, $param);
+
+        curl_setopt($http, CURLOPT_RETURNTRANSFER, 1);
+
+        curl_setopt($http, CURLOPT_HEADER, 1);
+
+        curl_setopt($http, CURLOPT_HTTPHEADER, $header);
+
+        curl_exec($http);
+        $httpCode = curl_getinfo($http, CURLINFO_HTTP_CODE);
+        curl_close($http);
+
+        return $httpCode;
+    } catch (RuntimeException $exception) {
+        echo $exception->getMessage();
+    }
+
+}
 
 function postRaw($url, $param, $header = array())
 {

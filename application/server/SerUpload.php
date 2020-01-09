@@ -193,7 +193,8 @@ class SerUpload
             'mp4' => '.mp4',
             'webm' => '.webm',
             'ogg' => '.ogg',
-            'ogv' => '.ogv'
+            'ogv' => '.ogv',
+            'wmv' => '.wmv'
         );
         return $this->typeUpload($array);
     }

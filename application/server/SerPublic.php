@@ -23,7 +23,7 @@ class SerPublic
         return json_encode($return);
     }
 
-    public static function ApiSuccess($data)
+    public static function ApiSuccess($data = '')
     {
         return self::ApiJson($data, 0, 'success');
     }
@@ -45,7 +45,7 @@ class SerPublic
             'original' => false,
             'fileName' => time(),
             'uploadType' => 'media',
-            'typeArr' => array('mp4', 'ogg', 'ogv', 'webm'),
+            'typeArr' => array('mp4', 'ogg', 'ogv', 'webm', 'wmv'),
             'size' => '4096m',
             'is_tmp' => true
         );
@@ -93,7 +93,9 @@ class SerPublic
     {
         $path = str_replace(app_domain, $_SERVER['DOCUMENT_ROOT'], $tmp_url);
         $new_path = strstr($path, '.tmp', true);
-
+        if (!$new_path) {
+            return false;
+        }
         if (file_exists($path)) {
             rename($path, $new_path);
         } else {
@@ -101,6 +103,39 @@ class SerPublic
         }
         $url = str_replace($_SERVER['DOCUMENT_ROOT'], app_domain, $tmp_url);
         return $new_url = strstr($url, '.tmp', true);
+    }
+
+
+    /**
+     * 检测上传的文件链接是否在指定处
+     * @param $url //检测的链接
+     * @param $type //文件类型
+     * @return bool
+     * */
+    public static function checkUploadURL($url, $type)
+    {
+        $_data = parse_url($url);
+        //检测域名
+        $url_domain = $_data['scheme'] . "://" . $_data['host'];
+        if ($url_domain != app_domain) {
+            return false;
+        }
+        $needle = '/static/upload/';
+        switch ($type) {
+            case 'picture':
+                $needle .= "picture/";
+                break;
+            case 'video':
+                $needle .= "video/";
+                break;
+        }
+        if (!strstr($_data['path'], $needle)) {
+            return false;
+        }
+        if (getHttpCode($url) != '200') {
+            return false;
+        }
+        return true;
     }
 
     /*递归无限制级数据*/
