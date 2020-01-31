@@ -9,6 +9,8 @@ Route::group('/course', function () {
     Route::get('/detail', 'getOne');
 })->prefix('index/Course/');
 
+
+
 /*管理员后台*/
 Route::group('/admin/course', function () {
     Route::get('/all', 'getAll');

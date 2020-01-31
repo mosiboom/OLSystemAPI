@@ -7,9 +7,9 @@ use think\facade\{Request, Route};
 Route::group('/article', function () {
     Route::get('/get', 'getAll');
     Route::get('/detail', 'getOne');
-    Route::get('/comment/get', 'comment');
     Route::get('/category', 'category');
     Route::get('/byCategory', 'byCategory');
+    Route::get('/comment/get', 'comment');
     Route::post('/comment/insert', 'insertComment')->middleware('auth');
 })->prefix('index/Article/');
 /*管理员后台*/

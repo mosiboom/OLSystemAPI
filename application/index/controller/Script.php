@@ -73,4 +73,533 @@ class Script extends Controller
         echo '插入完成';
         exit;
     }
+
+    public function ImoocSection()
+    {
+        require_once 'SerSimpleHtmlDom.php';
+        $html1 = new simple_html_dom();
+
+        $return1 = postRaw('https://www.imooc.com/course/list?sort=pop', '');
+        $html1->load($return1);
+        $j = 0;
+        $all_data = array();
+        foreach ($html1->find('div.course-card-container') as $element) {
+            $j++;
+            if ($j < 21) {
+                continue;
+            }
+            $str1 = $element->find('.course-card', 0)->getAttribute('href');
+            $url = 'https://www.imooc.com' . $str1;
+            $return = postRaw($url, '');
+            $html = new simple_html_dom();
+            $html->load($return);
+
+            $b = 0;
+            foreach ($html->find('.video') as $ul) {
+                foreach ($ul->find('li') as $k => $li) {
+                    $a = trim(rtrim(str_replace("开始学习", '', trim($li->plaintext))));
+                    $a = preg_replace("/\\d+/", '', $a);
+                    $a = str_replace('- ', '', $a);
+                    $video_url = $this->tmpRandVideo();
+                    $b++;
+                    $data = [
+                        'title' => $a,
+                        'num' => $b,
+                        'content' => $this->tmpRandContent(),
+                        'course_id' => $j,
+                        'video_url' => $video_url,
+                        'diffcult_point' => rand(0, 1)
+                    ];
+                    array_push($all_data, $data);
+                }
+            }
+        }
+        //dump($all_data);
+        $res = Db::table('section')->insertAll($all_data);
+        dump($res);
+    }
+
+    /*随机有没有视频*/
+    public function tmpRandVideo()
+    {
+        $rand = rand(1, 3);
+        switch ($rand) {
+            case 1:
+                $video = 'http://106.54.187.34/static/upload/video/1580458072.mp4';
+                break;
+            default:
+                $video = '';
+        }
+        return $video;
+    }
+
+    /*随机生成内容*/
+    public function tmpRandContent()
+    {
+        $rand = rand(1, 8);
+        switch ($rand) {
+            case 1:
+                $video = 'C语言中的变量有哪些存储类型，你还记得吗？static老手都这样用。
+
+1、 先来回顾C语言变量
+
+C语言中变量值的存储位置有两类：CPU的寄存器和内存。变量存储类型关系到其存储位置，除了register型存储在CPU寄存器中，C语言提供的其它三种存储类型（auto型、static型、extern型）的变量均存储在内存中。存储位置不同，决定了变量的生存期和作用域。
+
+具体变量介绍请见作者的另一篇文章，名为《说一说C语言中的变量存储类型——“extern”》。
+
+下面我们直接讲干货，static关键字用法。
+
+2、 Static关键字用法
+
+C语言中，无论是变量还是函数都可以用static关键字来修饰。具体用法我们分别来看。
+
+1) 修饰函数
+
+我们知道函数的声明（定义）也可以包括存储类型，但只有extern/static两种。当函数声明为extern，说明函数具有外部链接，其它文件可以调用此函数；当函数声明为static，说明函数是内部链接，即只能在定义函数的文件内部调用函数。当不指明函数存储类型，则默认该函数具有外部链接。
+
+这种情况适用于多文件编程（大多数程序都是这样的）。当某个文件中定义的函数不希望被其它源文件调用，就可以把它声明为static，对其它文件来说该函数不可见。例如，你在file1.c文件中定义了多个函数，如果你不允许函数名为fun2的函数被其它文件的函数调用，只需要将其声明为static即可，这样fun2函数只允许被file1.c中的其它函数调用，其它源文件中的函数无法调用fun2，起到了隐藏的作用。
+
+static int fun2(char c); //内部链接，对外不可见
+
+2) 修饰全局变量
+
+我们知道，全局变量存储在静态存储区，但是它不是静态变量，它的作用范围从定义处到所在源文件末尾。但是它对其它源文件都是有效的，只需要通过extern声明一下即可，详见作者的另一篇文章《说一说C语言中的变量存储类型——“extern”》。
+
+但是有些情况下，某些全局变量不想被同程序的其它源文件使用，那么我们就可以使用static关键字声明一下即可。例如，在file1.c中我们定义的整型全局变量g_a不想被其它源文件中函数使用，只需要在定义g_a时加上static关键字修饰。
+
+static int g_a;
+
+这样g_a对其它源文件比如file2.c是不可见的，当然，file2.c中也可以定义一个同名的静态全局变量，这是没有问题的。';
+                break;
+            case 2:
+                $video = '反射是 PHP 中的一种功能，在 Java 中也有。最开始了解反射是在 Java 中了解的。当时，只是听过，而没有了解过，也没有使用过。听同事说，反射在框架中会经常用到，而在实际项目中用的机会比较少。后来通过实际的项目，我接触了反射，也实际的应用了反射。
+
+这里主要来说一下 PHP 中的反射，实际的项目中我是从 Java 中了解了反射。
+
+实际的项目需求
+项目中需要开发一个 TCP 的服务器，用来保持和设备的长连接通信，设备会发来响应的数据，到服务器端来解析并入库。设备在不同的企业发送的数据格式是不同的，而服务器端接收到数据后，需要根据企业的 ID 进行判断解析。
+
+在解析设备发来的数据时，如果逐个字段进行解析，那么代码会非常的长，这时如果使用反射会大大的缩短代码的行数。为甚麽可以使用反射，因为整个数据其实只有几种格式，字符串、单字节和 IEEE 编码的浮点数。
+
+定义数据格式的类
+根据不同企业定义不同企业的数据格式的类。这个数据格式其实就是协议，收发双方的协议。收发双方的协议按照企业的不同而不同。
+
+作者：码农UP2U
+链接：https://www.jianshu.com/p/359eca45ddd4
+来源：简书
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。';
+                break;
+            case 3:
+                $video = '2019年PHP7.4发布，给PHP在预加载方面与性能在速度有很大的提升，PHP预加载的实现使得我们可以用PHP文件加载到内存中来应对后续的请求，所以优点当然是提升PHP性能，相反会相对消耗机器内存性能。
+
+PHP7.4除了提供预加载功能，还是提供更多扩展类，以应对外部函数接口。
+
+2019在各大网站提供的接口包括api或SDK中，PHP的并没有减少反而不断增加，说明PHP并没有被开发者放弃的预告。前不久有调查网站公布web开发领域中，有79%的网站编程还是选择PHP作为主要开发语言，而java作为第二备选。
+
+
+2019年PHP开发框架也不断为开发者提供更成熟更便捷更实用功能或工具，比如WordPress是个人博客系统逐步改变成一个完美的内容管理系统（CMS）；laravel框架，目前来说是PHP开发最经典、最成功的框架系统之一，最大的亮点应该是完全支持composer包管理工具，laravel因为是基础组件式框架，所以在开发中我们感觉比较臃肿，但是在结合最新PHP7.4，性能依然有不错的提升。
+
+记得几年前就有一些开发者开始炒作PHP被其他编程语言代替或快要结束PHP编程语言的时代，甚至还有些初学者说，现在都什么年代了还在学习PHP开发，PHP在编程界已经不再重要了等等说法。网上也时不时出现关于PHP与其他编程语言对比的文章，但是我们现在回顾2019年PHP的发展，不管是PHP本身改进还是PHP框架都在不断改进，而且没有并且没有进一步下降，而是PHP不断成长，更是丰收的一年。';
+                break;
+            case 4:
+                $video = '对于初学者来说，学习Java语言首先要从理解Java语言的各种抽象开始，其中类和对象是首先应该掌握的概念，掌握了类和对象之后，再理解封装、继承和多态这些概念的时候会更容易一些。理解抽象本身具有一定的难度，对于没有编程语言基础的人来说更是如此，而要想更好地了解这些抽象，应该通过各种实验来建立画面感。按照历史经验来看，Java语言的初期学习难度是比较大的，后期的学习难度相对会比较低。所以学习Java编程，一定要坚持。
+
+Java语言本身是纯粹的面向对象编程语言，而且语法规则比较严谨，这样做的好处是保证了java语言的运行效率和程序可读性（规范性），但是坏处是初学者需要记住很多规则，只有多用才能逐渐熟悉这些规则。为了提高初学者编写代码的规范性，java初学者还需要学习一系列编程模式，所以在掌握了基本的Java语法之后，紧接着就需要学习一系列Java模式。
+
+学习Java语言还需要学习一系列开发框架，不同的开发框架有不同的应用场景，会解决不同的问题，目前应该重点学习一下Spring框架，经过多年的发展，目前Spring系列框架已经比较成熟了，可以说为开发者提供了“一站式解决方案”。
+
+最后，学习java一定要注重实践，所以在学习完基本的java框架之后，最好在实习岗位上锻炼一下。
+
+我从事互联网行业多年，目前也在带计算机专业的研究生，主要的研究方向集中在大数据和人工智能领域，我会陆续写一些关于互联网技术方面的文章，感兴趣的朋友可以关注我，相信一定会有所收获。
+
+如果有互联网、大数据、人工智能等方面的问题，或者是考研方面的问题，都可以在评论区留言，或者私信我！';
+                break;
+            case 5:
+                $video = '上一篇文章当中，我们了解了网页的根本基石—超文本标记语言。
+
+超文本标记语言自出现至今，从HTML1.0发展至现在的HTML5.0。
+
+在这个信息时代，很多知识都不是停滞的，不变的，这些知识随着时代的发展也在一直在更新。
+
+既然HTML已经更新到了5.0版本。那我们就来详细的了解一下HTML5.0是如何出现的，
+
+
+HTML5.0的出现
+
+HTML5是HTML的最新版本，由万维网联盟（W3C）于2014年10月完成标准制定。目标是取代1999年所制定的HTML 4.01标准，使得网页标准能在互联网应用迅速发展的时候达到符合当时的网络需求。
+
+
+一般在说起HTML5时，实际指的是包括HTML、CSS和JavaScript在内的一套技术组件合集。
+
+HTML5旨在减少网页浏览器提供丰富的网络应用服务的同时对插件的依赖（也就是在摆脱各种插件的同时并提供与之相同的服务），例如：Adobe Flash。HTML5的网页不需要它就可以提供相应的服务。
+
+
+在上一篇文章当中，学记只是粗浅地描述了一下 HTML5 在何时出现。为此，在这篇文章当中学记会详细讲述它是如何出现的。
+
+网页超文本技术工作小组（WHATWG）于2004年开始制定新标准。当时，HTML 4.01自2000年以来从未更新，因为万维网联盟（W3C）正在将未来的发展重点放在XHTML2.0(可扩展超文本标记语言，是一种标记语言，表现方式与超文本标记语言（HTML）类似，不过语法上更加严格)。
+
+
+2009年，W3C决定结束XHTML 2.0的开发工作。W3C与WHATWG决定转向合作开始开发HTML5。
+
+2004年6月，Mozilla基金会和Opera软件(欧朋）公司在万维网联盟（W3C）所主办的研讨会上提出了一份立场文件，其重点是开发与现有浏览器向后兼容的技术。研讨会最后以—8票赞成，14票反对—否决继续对HTML的开发工作。这引起一些人的不满。
+
+
+这里有一个问题，学记在网上搜集资料时，并未发现是谁阻挡HTML5的开发，只是说在研讨会上有人投了反对票，不想开发新的HTML标准。
+
+上图中的Opera公司，是浏览器行业中的一个翘楚。
+
+现在浏览器上的很多新功能都是由他们首先开发出来的，像标签式浏览，鼠标手势，共享书签，同步传输数据。这些功能都是有Opera 公司率先使用的。
+
+其实，阻挡HTML新标准出现的人，都不用猜，在2004年，谁占据了大量的浏览器市场份额，谁就最有可能是阻挠它出现的人。
+
+很多公司，在占据市场份额之后，就不想向前开拓了，只想坐在功劳簿上吃老本，每当有开拓者想要向前进取，它们就会变成开拓进取的阻力。
+
+这种公司，以前会有，以后也会有。不过，在历史的车轮面前不过是灰尘而已。
+
+在研讨会之后，成立了网页超文本技术工作小组（WHATWG），以根据该目标开始工作，并宣布了第二个草案Web Applications 1.0。后来这两种规范合并形成HTML5。2007年，此小组获得W3C接纳，并成立了新的HTML工作团队。2008年1月22日，第一份公开工作草案发布。
+
+尽管HTML5已经在网络开发人员中非常出名了，但是它成为主流媒体的一个话题是在2010年的4月，当时苹果公司的CEO乔布斯发表一篇题为“对Flash的思考”的文章，指出随着HTML5的发展，观看影片或其它内容时，Adobe Flash将不再是必须的。这引发了开发人员间的争论，HTML5虽然提供了加强的功能，但开发人员必须考虑到不同浏览器对标准不同部分的支持程度的不同，以及HTML5和Flash间的功能差异。
+
+
+2014年10月28日，W3C正式发布HTML 5.0推荐标准。
+
+如果想学习更多科技知识，可以点击关注。
+
+如果对文章中的内容有什么困惑的地方，可以在评论区提出自己的问题，学记同大家一起交流，解决各种问题，一起进步。';
+                break;
+            case 6:
+                $video = "Swoole 介绍
+
+1.swoole提供了PHP语言的异步多线程服务器，异步TCP/UDP网络客户端，异步MySQL，异步Redis， 数据库连接池，AsyncTask，消息队列，毫秒定时器，异步文件读写，异步DNS查询。 Swoole还内置了Http/WebSocket服务器端/客户端、Http2.0服务器端。
+
+2.Swoole可以广泛应用于互联网、移动通信、企业软件、网络游戏、物联网、车联网、智能家庭等领域。 使用PHP+Swoole作为网络通信框架， 可以使企业IT研发团队的效率大大提升，更加专注于开发创新产品。
+
+3.Swoole底层内置了异步非阻塞、多线程的网络IO服务器。PHP程序员仅需处理事件回调即可，无需关心底层。与Nginx/Tornado/Node.js等全异步的框架不同，Swoole既支持全异步，也支持同步。
+
+Swoole 如何处理高并发
+
+①对Reactor模型介绍我们都知道IO复用异步非阻塞程序使用的是经典的Reactor模型，Reactor就是反应堆的意思，也就是说它本身不处理任何数据收发。只是可以监视一个socket(比如管道、eventfd、信号)句柄的事件变化。Reactor只作为一个事件发生器，实际对socket句柄的操作，如connect/accept、send/recv、close等都是在callback中完成的。看看下面图片就可以了解到。
+
+
+②swoole的架构咱们再来看看swoole的架构，我们也可以从以下借鉴的图片可以看出，swoole采用的架构模式：多线程Reactor+多进程Worker，因为reactor是基于epoll的，所以不难看出每个reactor，它可以用来处理无数个连接请求。 如此，swoole就轻松的实现了高并发的处理。这里对高并发还不清楚的话，请自行网上看看教程，这里就不多做解释了。
+
+
+Swoole的处理连接流程图如下：
+
+
+当请求到达时，Swoole是这样处理的：
+
+
+Swoole 如何实现异步I/O
+
+基于上面的Swoole结构图，我们可以知道：Swoole的worker进程有2种类型：一种是普通的worker进程，一种是task worker进程。这两种类型分别用来处理什么呢？
+
+worker进程：用来处理普通的耗时不是太长的请求
+task worker进程：用来处理耗时较长的请求，比如数据库的I/O操作
+我们再以异步MySQL举例，不难看出通过worker、task worker结合的方式，我们就实现了异步I/O。
+
+";
+                break;
+            case 7:
+                $video = '前端开发中，当需要做一个网站时，第一步便是UI设计师设计页面图片，然后是前端工程师将UI设计的图片用代码做出真实的页面，并且一定要精准到像素级别，比如padding多少像素，margin多少等等都要求非常精确，其次就是后端开发人员将网站逻辑实现。
+
+
+今天来说说前端工程师所要做的，如何将页面搭建出来，对于新手来说，一个合理的步骤将会带来全新的认识。
+
+说说我的经验，一般自己一个人做网站的时候，前端和后端都要自己解决，也没人给你设计页面，所以做的时候都是从网上找一个和自己需求差不多的网站，对照着人家的样式自己做页面。
+
+
+做的时候用sublime或者webstorm，它们提供快速代码生成功能特别好，标签也能快速生成，
+
+比如做导航条的时候，需要用到无序列表，一般来说都是ul中有好多个li，用sublime就可以这样写：ul>li*10
+
+
+然后按tab键就能够生成一个包含了十个li的ul标签，特别方便，还支持这样的：ul>li*10>a
+
+这样生成的10个li中每一个li又都包含一个a标签，所以特别方便。
+
+最关键的，写页面的时候用sublime快速将html写出来，写html的时候css不用问，只要你心中能够知道这些html标签能够实现什么样的效果就行了。最后写完了在一点点写css，写的时候就像一点点盖房子一样，特别有成就感。';
+                break;
+            default:
+                $video = 'Java现在已经发展到了Java13了（正式版本），相信很多朋友还对各个版本还不是很熟悉，这里面专门把Java9到Java13各个版本的一些新特性做了一些详细讲解。我在网上也找了很多，但基本都是官方文档的CV，没有任何代码演示，而且官方的示例代码也不是很好找得到，官方API目前还是Java10，官方文档真是坑啊。所以我在这里专门写了一篇文章，主要针对平时开发与有关的功能Java9到Java13各个版本都做了代码详细讲解。
+
+【PS】：这个季节太冷了，南方湿冷，我的手都生冻疮了，看在年前最后几天了，没办法，我最后选择去网吧花了几天时间，网费都花了好几百块，为了打造这篇干货不惜下血本啊。终于奋战几天写出来了这篇文章。每一个语法细节都经过实例演示过的，我特意把每个版本的Open JDK都下载了一遍，体验里面的细节差距和新特性。
+
+希望大家点赞，评论和收藏三连，也不负我的一片苦心，谢谢大家了。
+
+想获得更多干货，欢迎大家多多关注我的博客。本文为作者AWeiLoveAndroid原创，未经授权，严禁转载。
+
+
+文章目录
+
+一、Java 9
+Java 9 集合工厂方法
+REPL (JShell)
+接口支持私有方法和私有静态方法：
+改进的 Stream API和Optional 类
+改进的 CompletableFuture API
+异常处理机制改进try-with-resources
+改进的 @Deprecated 注解
+钻石操作符(Diamond Operator“”)
+Unicode 7.0扩展支持：
+二、Java 10
+var 局部变量类型推断
+支持Unicode 8.0。
+三、Java 11
+局部变量的语法lambda参数
+启动单文件源代码程序
+四、Java 12
+对 switch 语句进行扩展：
+五、Java 13
+switch表达式预览版
+Text Blocks预览版（文字块）
+
+一、Java 9
+
+【注：】Java9的更新是最多的，这个需要特别注意学一下。
+
+Java 9 集合工厂方法
+
+示例：
+
+public static void main(String[] args) { Set set = Set.of("set1", "set2", "set3"); // set: [set1, set3, set2] System.out.println("set: " + set); Map maps1 = Map.of( "map1","Apple", "map2","Orange","map3","Banana", "map4","cherry"); // maps1: {map3=Banana, map2=Orange, map1=Apple, map4=cherry} System.out.println("maps1: " + maps1); Map maps2 = Map.ofEntries ( new AbstractMap.SimpleEntry("map1","Apple"), new AbstractMap.SimpleEntry("map2","Orange"), new AbstractMap.SimpleEntry("map3","Banana"), new AbstractMap.SimpleEntry("map4","cherry"), new AbstractMap.SimpleEntry("map5","Apple"), new AbstractMap.SimpleEntry("map6","Orange"), new AbstractMap.SimpleEntry("map7","Banana"), new AbstractMap.SimpleEntry("map8","cherry"), new AbstractMap.SimpleEntry("map9","Apple"), new AbstractMap.SimpleEntry("map10","Orange"), new AbstractMap.SimpleEntry("map11","Banana"), new AbstractMap.SimpleEntry("map12","cherry") ); // maps2: {map3=Banana, map2=Orange, map1=Apple, map12=cherry, map11=Banana, map10=Orange, // map9=Apple, map8=cherry, map7=Banana, map6=Orange, map5=Apple, map4=cherry} System.out.println("maps2: " + maps2);}Java9以前的做法：
+
+List list = new ArrayList();list.add("A");list.add("B");list.add("C");Set set = new HashSet();set.add("A");set.add("B");set.add("C");Map map = new HashMap();map.put("A","Apple");map.put("B","Boy");map.put("C","Cat");Java9可以直接输出集合的内容，在此之前必须遍历集合才能全部获取里面的元素。这是一个很大的改进。
+
+Java 9 List，Set 和 Map 接口中，新增静态工厂方法可以创建这些集合的不可变实例。
+
+Java 9 中，可以使用以下方法创建 List，Set 和 Map 的集合对象。重载方法有很多，示例如下：
+
+static List of()static List of(E e1)static List of(E e1, E e2)static List of(E e1, E e2, E e3)static List of(E e1, E e2, E e3, E e4)static List of(E e1, E e2, E e3, E e4, E e5)static List of(E e1, E e2, E e3, E e4, E e5, E e6)static List of(E e1, E e2, E e3, E e4, E e5, E e6, E e7)static List of(E e1, E e2, E e3, E e4, E e5, E e6, E e7, E e8)static List of(E e1, E e2, E e3, E e4, E e5, E e6, E e7, E e8, E e9)static List of(E e1, E e2, E e3, E e4, E e5, E e6, E e7, E e8, E e9, E e10)static List of(E... elements)static Set of()static Set of(E e1)static Set of(E e1, E e2)static Set of(E e1, E e2, E e3)static Set of(E e1, E e2, E e3, E e4)static Set of(E e1, E e2, E e3, E e4, E e5)static Set of(E e1, E e2, E e3, E e4, E e5, E e6)static Set of(E e1, E e2, E e3, E e4, E e5, E e6, E e7)static Set of(E e1, E e2, E e3, E e4, E e5, E e6, E e7, E e8)static Set of(E e1, E e2, E e3, E e4, E e5, E e6, E e7, E e8, E e9)static Set of(E e1, E e2, E e3, E e4, E e5, E e6, E e7, E e8, E e9, E e10)static Set of(E... elements)static Map of() static Map of(K k1, V v1)static Map of(K k1, V v1, K k2, V v2)static Map of(K k1, V v1, K k2, V v2, K k3, V v3)static Map of(K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4)static Map of(K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4, K k5, V v5)static Map of(K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4, K k5, V v5, K k6, V v6)static Map of(K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4, K k5, V v5, K k6, V v6, K k7, V v7)static Map of(K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4, K k5, V v5, K k6, V v6, K k7, V v7, K k8, V v8)static Map of(K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4, K k5, V v5, K k6, V v6, K k7, V v7, K k8, V v8, K k9, V v9)static Map of(K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4, K k5, V v5, K k6, V v6, K k7, V v7, K k8, V v8, K k9, V v9, K k10, V v10)static Map ofEntries(Entry extends K, ? extends V>... entries)List ，Set 和Map 接口, of(…) 方法重载了 0 ~ 10 个参数的不同方法 。Map 接口如果超过 10 个参数, 可以使用 ofEntries(…) 方法。
+
+REPL (JShell)
+
+REPL(Read Eval Print Loop)意为交互式的编程环境。JShell 是 Java 9 新增的一个交互式的编程环境工具。它允许你无需使用类或者方法包装来执行 Java 语句。它与 Python 的解释器类似，可以直接输入表达式并查看其执行结果。
+
+例如：
+
+输入“jshell”打开jshell命令窗口：
+
+
+输入“/help”查看帮助信息：
+
+
+进行运算，创建和使用函数，以及退出：
+
+
+接口支持私有方法和私有静态方法：
+
+下图是Java8和java9的接口的变化的对比：
+
+
+示例如下：
+
+interface Test{ String fields = "interface field"; public abstract void abstractMethods(); default void defaultMethods() { System.out.println("default Method"); staticMethods(); privateMethods(); privateStaticMethods(); } static void staticMethods() { System.out.println("static Method"); } private void privateMethods() { System.out.println("private Method"); } private static void privateStaticMethods() { System.out.println("private Static Method"); } }接口实现类：
+
+public class TestImpl implements Test{ @Override public void abstractMethods() { System.out.println("abstract Method"); } }测试类：
+
+public class Demo{ public static void main(String[] args) { TestImpl testImpl = new TestImpl(); System.out.println(testImpl.fields); testImpl.abstractMethods(); testImpl.defaultMethods(); }}测试结果：
+
+interface fieldabstract Methoddefault Methodstatic Methodprivate Methodprivate Static Method改进的 Stream API和Optional 类
+
+Java 9 改进的 Stream API ，为 Stream 新增了几个方法：dropWhile、takeWhile、ofNullable，为 iterate 方法新增了一个重载方法，使流处理更容易。
+
+Optional 类在Java8中引入，它的引入很好的解决空指针异常，在 java 9 中, 添加了stream()，ifPresentOrElse()和or()三个方法来改进它的功能。
+
+示例如下：
+
+Stream.of("a","b","c","","e","f").takeWhile(s->!s.isEmpty()) .forEach(System.out::print);System.out.println();Stream.of("10","20","30","","40","50").dropWhile(s-> !s.isEmpty()) .forEach(System.out::print);System.out.println();IntStream.iterate(3, x -> x x+ 3).forEach(System.out::print);System.out.println();System.out.println(Stream.ofNullable(100).count());System.out.println(Stream.ofNullable(null).count());结果：
+
+// abc// 4050// 369// 1// 0public static void main(String[] args) { // stream()用法： List> list = Arrays.asList ( Optional.of("data1"), Optional.empty(), Optional.of("data2"), Optional.empty(), Optional.of("data3")); List result = list.stream() .flatMap(Optional::stream) .collect(Collectors.toList()); // 结果 [data1, data2, data3] System.out.println(result); // ifPresentOrElse使用： Optional optional = Optional.of("datas"); // 结果 Value: datas optional.ifPresentOrElse( x -> System.out.println("Value: " + x),() -> System.out.println("No data found")); optional = Optional.empty(); // 结果 No data found optional.ifPresentOrElse( x -> System.out.println("Value: " + x),() -> System.out.println("No data found")); Optional optional1 = Optional.of("datas"); Supplier> nullData = () -> Optional.of("No data found"); optional1 = optional1.or(nullData); // Value: datas optional1.ifPresent( x -> System.out.println("Value: " + x)); optional1 = Optional.empty(); optional1 = optional1.or(nullData); // Value: No data found optional1.ifPresent( x -> System.out.println("Value: " + x));}改进的 CompletableFuture API
+
+支持 delays 和 timeouts，提升了对子类化的支持，新的工厂方法：
+
+public CompletableFuture completeOnTimeout(T value, long timeout, TimeUnit unit)：在timeout（单位在java.util.concurrent.Timeunits units中，比如 MILLISECONDS ）前以给定的 value 完成这个 CompletableFutrue。返回这个 CompletableFutrue。
+
+public CompletableFuture orTimeout(long timeout, TimeUnit unit)：如果没有在给定的 timeout 内完成，就以 java.util.concurrent.TimeoutException 完成这个 CompletableFutrue，并返回这个 CompletableFutrue。
+
+public CompletableFuture newIncompleteFuture()：使得CompletableFuture可以被更简单的继承
+
+CompletionStage completedStage(U value)：返回一个新的以指定 value 完成的CompletionStage ，并且只支持 CompletionStage 里的接口。
+
+CompletionStage failedStage(Throwable ex)：返回一个新的以指定异常完成的CompletionStage ，并且只支持 CompletionStage 里的接口。
+
+异常处理机制改进try-with-resources
+
+try-with-resources 声明在 JDK 9 已得到改进。如果你已经有一个资源是 final 或等效于 final 变量,您可以在 try-with-resources 语句中使用该变量，而无需在 try-with-resources 语句中声明一个新变量。
+
+示例如下：
+
+public static void main(String[] args) throws IOException { System.out.println(readData("test"));// 结果：test}static String readData(String message) throws IOException { Reader inputString = new StringReader(message); BufferedReader br = new BufferedReader(inputString); // Java8处理方式： // try (BufferedReader br1 = br) { // return br1.readLine(); // } // Java9处理方式： try (br) { return br.readLine(); }}改进的 @Deprecated 注解
+
+Java 9 中注解增加了两个新元素：since和forRemoval。since: 元素指定已注解的API元素已被弃用的版本。forRemoval: 元素表示注解的 API 元素在将来的版本中被删除，应该迁移 API。示例如下：
+
+@Deprecated(since = "1.9", forRemoval = true)class Test{}钻石操作符(Diamond Operator“”)
+
+在 java 9 中， “”可以与匿名的内部类一起使用，从而提高代码的可读性。
+
+示例：
+
+public class Test { public static void main(String[] args) { Handler intHandler = new Handler(1) { @Override public void handle() { System.out.println(content); } }; intHandler.handle(); Handler extends Number> intHandler1 = new Handler(2) { @Override public void handle() { System.out.println(content); } }; intHandler1.handle(); Handler> handler = new Handler("test") { @Override public void handle() { System.out.println(content); } }; handler.handle(); } } abstract class Handler { public T content; public Handler(T content) { this.content = content; } abstract void handle();}在java8中，上例中的 newHandler后面的里面必须带有泛型类型。Java9就不需要了。
+
+Unicode 7.0扩展支持：
+
+从Java SE 9，升级现有平台的API，支持7.0版本的Unicode标准，主要在以下类中：
+
+java.lang.Character和java.lang.Stringjava.text包中的Bidi，BreakIterator和Normalizer此次升级将包括改善双向行为，从而可以更好地显示Unicode 6.3中引入的阿拉伯语和希伯来语等文本。 Unicode 7.0本身将添加大约三千个字符和二十多个脚本。
+
+更多详情请查看：https://openjdk.java.net/projects/jdk9/
+
+二、Java 10
+
+这里重点看我们开发者能够直接体验到的一些功能：
+
+var 局部变量类型推断
+
+示例：
+
+var list = new ArrayList(); // 代表 ArrayListvar stream = list.stream(); // 代表 Stream这种处理将仅限于带有初始值设定项的局部变量，增强的for循环中的索引以及在传统的for循环中声明的局部变量。它不适用于方法形式，构造函数形式，方法返回类型，字段，catch形式或任何其他类型的变量声明。
+
+支持Unicode 8.0。
+
+增强了java.util.Locale和相关的API，以实现BCP 47语言标签的其他Unicode扩展。
+
+此次针对BCP 47语言标签扩展包括：
+
+cu （货币类型）
+fw （一周的第一天）
+rg （区域覆盖）
+tz （时区）
+具体API变更有：
+
+java.text.DateFormat::get*Instance将根据扩展名返回实例ca，rg和/或tz
+java.text.DateFormatSymbols::getInstance 将根据扩展名返回实例 rg
+java.text.DecimalFormatSymbols::getInstance 将根据扩展名返回实例 rg
+java.text.NumberFormat::get*Instance将根据扩展名nu和/或返回实例rg
+java.time.format.DateTimeFormatter::localizedBy将返回DateTimeFormatter基于扩展情况下ca，rg和/或tz
+java.time.format.DateTimeFormatterBuilder::getLocalizedDateTimePattern将根据rg扩展名返回模式字符串。
+java.time.format.DecimalStyle::of将DecimalStyle根据扩展名返回实例nu，和/或rg
+java.time.temporal.WeekFields::of将WeekFields根据扩展名fw和/或返回实例rg
+java.util.Calendar::{getFirstDayOfWeek,getMinimalDaysInWeek}将根据扩展名fw和/或返回值rg
+java.util.Currency::getInstance将Currency根据扩展名cu和/或返回实例rg
+java.util.Locale::getDisplayName 将返回一个字符串，其中包括这些U扩展名的显示名称
+java.util.spi.LocaleNameProvider 这些U扩展的键和类型将具有新的SPI
+其他特性都是有关垃圾回收，编译器，证书，以及命令工具等有关的，这里就不列举了。
+
+更多详情请查看：https://openjdk.java.net/projects/jdk/10/
+
+三、Java 11
+
+局部变量的语法lambda参数
+
+Java11中的lambda表达式可以为隐式类型，其中类型的形式参数都可以被推断出。对于隐式类型的lambda表达式的形式参数，允许使用保留的类型名称var，以便：(var x, var y) -> x.process(y)等效于：
+
+(x, y) -> x.process(y) // 这样的对的(var x, int y) -> x.process(y) // 这样就会报错其他的lambda用法和Java8里的lambda用法一样。
+
+启动单文件源代码程序
+
+增强java启动器以运行作为Java源代码的单个文件提供的程序，包括通过“ shebang”文件和相关技术从脚本内部使用该程序。
+
+从JDK 10开始，java启动器以三种模式运行：启动类文件，启动JAR文件的main类或启动模块的main类。在这里，我们添加了新的第四种模式：启动在源文件中声明的类。
+
+如果“类名”标识具有.java扩展名的现有文件，则选择源文件模式，并编译和运行该文件。该–source选项可用于指定源代码的源版本。
+
+如果文件没有.java扩展名，则–source必须使用该选项来强制源文件模式。例如当源文件是要执行的“脚本”并且源文件的名称不遵循Java源文件的常规命名约定时。
+
+更多详情请查看：https://openjdk.java.net/projects/jdk/11/
+
+四、Java 12
+
+对 switch 语句进行扩展：
+
+扩展switch语句，以便可以将其用作语句或表达式，并且两种形式都可以使用“传统”或“简化”作用域并控制流的行为。这些变化将简化日常编码在switch中。这是JDK 12中的预览功能。
+
+请注意：此JEP已被JDK 13的JEP 354取代。
+
+普通写法：
+
+switch (day) { case MONDAY: case FRIDAY: case SUNDAY: System.out.println(6); break; case TUESDAY: System.out.println(7); break; case THURSDAY: case SATURDAY: System.out.println(8); break; case WEDNESDAY: System.out.println(9); break;}现在引入一种新的switch标签形式，写为“case L ->”，表示如果匹配标签，则只执行标签右边的代码。例如，现在可以编写以前的代码：
+
+switch (day) { case MONDAY, FRIDAY, SUNDAY -> System.out.println(6); case TUESDAY -> System.out.println(7); case THURSDAY, SATURDAY -> System.out.println(8); case WEDNESDAY -> System.out.println(9);}再比如局部变量，普通写法是这样的：
+
+int numLetters;switch (day) { case MONDAY: case FRIDAY: case SUNDAY: numLetters = 6; break; case TUESDAY: numLetters = 7; break; case THURSDAY: case SATURDAY: numLetters = 8; break; case WEDNESDAY: numLetters = 9; break; default: throw new IllegalStateException("Wat: " + day);}现在的写法是这样的：
+
+int numLetters = switch (day) { case MONDAY, FRIDAY, SUNDAY -> 6; case TUESDAY -> 7; case THURSDAY, SATURDAY -> 8; case WEDNESDAY -> 9;};更多详情请查看：https://openjdk.java.net/projects/jdk/12/
+
+五、Java 13
+
+switch表达式预览版
+
+JDK 13中新增 switch 表达式beta 版本，这是对Java12 switch表达式功能的增强版本，并且Java13版本的switch表达式的更新可以用于生产环境中。switch 表达式扩展了 switch 语句，使其不仅可以作为语句（statement），还可以作为表达式（expression），并且两种写法都可以使用传统的 switch 语法。
+
+除了Java12的用法之外，Java13的更新引入一个新的关键字yield。大多数switch表达式在“case L ->”开关标签的右侧都有一个表达式。如果需要一个完整的块，需要使用yield语句来产生一个值，该值是封闭switch表达式的值。
+
+示例：
+
+int j = switch (day) { case MONDAY -> 0; case TUESDAY -> 1; default -> { int k = day.toString().length(); int result = f(k); yield result; }};上例也可以使用传统的switch语句：
+
+int result = switch (s) { case "Foo": yield 1; case "Bar": yield 2; default: System.out.println("Neither Foo nor Bar, hmmm..."); yield 0;};switch表达的情况必须详细;对于所有可能的值，必须有一个匹配的switch标签。（显然，switch声明并非必须详细。）这通常意味着需要一个default子句。但是enum switch对于覆盖所有已知常量的表达式，default编译器会插入一个子句以指示该enum定义在编译时和运行时之间已更改。依靠这种隐式default子句的插入可以使代码更健壮。现在，当重新编译代码时，编译器将检查所有情况是否得到明确处理。
+
+此外，switch表达式必须以一个值正常完成，或者必须通过引发异常来突然完成。这有许多后果。首先，编译器会检查每个开关标签是否匹配，然后产生一个值。
+
+示例：
+
+int i = switch (day) { case MONDAY -> { System.out.println("Monday"); // ERROR! Block doesn\'t contain a yield statement } default -> 1;};i = switch (day) { case MONDAY, TUESDAY, WEDNESDAY: yield 0; default: System.out.println("Second half of the week"); // ERROR! Group doesn\'t contain a yield statement};另一种后果是，控制语句，break，yield，return和continue，无法通过跳switch表达式，示例：
+
+z: for (int i = 0; i Text Blocks预览版（文字块）
+
+简单地说就是：可以跨多行显示字符串并且不对转义字符进行转义。目标是编写Java程序的任务，同时避免了常见情况下的转义序列，增强Java程序中表示用非Java语言编写的代码的字符串的可读性。
+
+在Java中，在字符串文字中嵌入HTML，XML，SQL或JSON片段"…"通常需要先进行转义和串联的大量编辑工作，然后才能编译包含该代码块的代码。该代码快通常难以阅读且难以维护。但是Java13的代码块功能会更直观地表示字符串，而且可以跨越多行，而且不会出现转义的视觉混乱，这将提高Java程序的可读性和可写性。本质上是二维文本块，而不是一维字符序列。
+
+基本语法形式：
+
+"""line 1line 2line 3"""等效于："line 1\nline 2\nline 3\n"
+
+或字符串文字的串联：
+
+"line 1\n" +"line 2\n" +"line 3\n"如果在字符串的末尾不需要行终止符，则可以将结束定界符放在内容的最后一行。例如，文本块：
+
+"""line 1line 2line 3"""具体使用：
+
+字符串里面写HTML代码，
+
+Java13之前写法：
+
+String html = "\n" + " \n" + " Hello, world
+
+\n" + " \n" + "\n";Java13写法：
+
+String html = """ Hello, world
+
+""";再比如SQL示例：
+
+Java13之前写法：
+
+String query = "SELECT `EMP_ID`, `LAST_NAME` FROM `EMPLOYEE_TB`\n" + "WHERE `CITY` = \'INDIANAPOLIS\'\n" + "ORDER BY `EMP_ID`, `LAST_NAME`;\n";Java13写法：
+
+String query = """ SELECT `EMP_ID`, `LAST_NAME` FROM `EMPLOYEE_TB` WHERE `CITY` = \'INDIANAPOLIS\' ORDER BY `EMP_ID`, `LAST_NAME`; """; 再比如：
+
+Java13之前写法：
+
+ScriptEngine engine = new ScriptEngineManager().getEngineByName("js");Object obj = engine.eval("function hello() {\n" + " print(\'\"Hello, world\"\');\n" + "}\n" + "\n" + "hello();\n"); Java13写法：
+
+ScriptEngine engine = new ScriptEngineManager().getEngineByName("js");Object obj = engine.eval(""" function hello() { print(\'"Hello, world"\'); } hello(); """);更多详情请查看：https://openjdk.java.net/projects/jdk/13/';
+        }
+        return $video;
+    }
+
+    public function tmp()
+    {
+        $b = 1;
+        for ($i = 1; $i < 1500; $i++) {
+            $k = $b + 1;//2
+            $section_id = $i;//1
+            $id1 = $b;//1
+            $id2 = $k;//2
+            $b = $k + 1;//3
+            Db::table('section_comment')->where('id', $id1)->update(['section_id' => $section_id]);
+            Db::table('section_comment')->where('id', $id2)->update(['section_id' => $section_id]);
+        }
+    }
 }
