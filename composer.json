@@ -21,7 +21,8 @@
         "ext-json": "*",
         "ext-curl": "*",
       "ext-http": "*",
-      "ext-iconv": "*"
+      "ext-iconv": "*",
+      "ext-calendar": "*"
     },
     "autoload": {
         "psr-4": {
