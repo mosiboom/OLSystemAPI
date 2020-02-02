@@ -19,10 +19,8 @@ class Course extends Controller
     public function getAll()
     {
         try {
-            $offset = Request::get('offset', 1);
-            $data = Db::table('course')->where('status', '1')
+            $data = Db::table('course')
                 ->order('hot', 'desc')
-                ->page($offset, '20')
                 ->select();
             if (count($data) == 0) {
                 throw new DataNotFoundException('数据不存在！');
@@ -32,7 +30,6 @@ class Course extends Controller
                 $data[$k]['update_time'] = date('Y-m-d H:i', $v['update_time']);
             }
             return SerPublic::ApiJson(array(
-                'nextPage' => $offset + 1,
                 'data' => $data
             ), 0, 'success');
         } catch (DataNotFoundException $e) {
