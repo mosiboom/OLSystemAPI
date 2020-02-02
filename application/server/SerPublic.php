@@ -115,6 +115,8 @@ class SerPublic
     public static function checkUploadURL($url, $type)
     {
         $_data = parse_url($url);
+        if (!isset($_data['scheme'], $_data['host']))
+            return false;
         //检测域名
         $url_domain = $_data['scheme'] . "://" . $_data['host'];
         if ($url_domain != app_domain) {
@@ -135,6 +137,7 @@ class SerPublic
         if (getHttpCode($url) != '200') {
             return false;
         }
+
         return true;
     }
 
