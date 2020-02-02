@@ -10,6 +10,7 @@ use think\{Controller,
     exception\DbException,
     facade\Request,
 };
+use http\Exception\RuntimeException;
 
 class User extends Controller
 {
@@ -107,14 +108,53 @@ class User extends Controller
 
     public function getOne()
     {
+        try {
+            $user_id = Request::get('id');
+            if (!isset($user_id)) throw new \RuntimeException('参数有误！');
+            $data = Db::table('user')->where('open_id', $user_id)->findOrFail();
+            $data['wechat_info'] = json_decode($data['wechat_user'], true);
+            return SerPublic::ApiSuccess($data);
+        } catch (\RuntimeException $e) {
+            return SerPublic::ApiJson('', 101, $e->getMessage());
+        } catch (DataNotFoundException $e) {
+            return SerPublic::ApiJson('', 3002, $e->getMessage());
+        } catch (ModelNotFoundException $e) {
+            return SerPublic::ApiJson('', 3002, $e->getMessage());
+        } catch (DbException $e) {
+            return SerPublic::ApiJson('', 3001, $e->getMessage());
+        } catch (\Exception $e) {
+            return SerPublic::ApiJson('', 3003, $e->getMessage());
+        }
     }
 
     public function delete()
     {
     }
 
-    public function insert()
+    public function status()
     {
+        try {
+            $user_id = Request::post('id');
+            $status = Request::post('status');
+            if (!isset($user_id) || !in_array($status, [0, 1])) throw new \RuntimeException('参数有误！');
+            $data = [
+                'open_id' => $user_id,
+                'status' => $status
+            ];
+            $res = Db::table('user')->update($data);
+            if (!$res) throw new DbException('更新失败');
+            return SerPublic::ApiSuccess();
+        } catch (\RuntimeException $e) {
+            return SerPublic::ApiJson('', 101, $e->getMessage());
+        } catch (DataNotFoundException $e) {
+            return SerPublic::ApiJson('', 3002, $e->getMessage());
+        } catch (ModelNotFoundException $e) {
+            return SerPublic::ApiJson('', 3002, $e->getMessage());
+        } catch (DbException $e) {
+            return SerPublic::ApiJson('', 3001, $e->getMessage());
+        } catch (\Exception $e) {
+            return SerPublic::ApiJson('', 3003, $e->getMessage());
+        }
     }
 
     public function save()
