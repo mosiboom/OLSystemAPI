@@ -23,7 +23,7 @@ class Article extends Controller
                 ->join('article_category ac', 'ac.id=a.cat_id')
                 ->order('hot', 'desc')
                 ->page($offset, '20')
-                ->field('a.id,name as cat_name,hot,title,desc,create_time,update_time,author,cover_url,cat_id')
+                ->field('a.id,name as cat_name,hot,title,desc,create_time,update_time,author,a.cover_url,cat_id')
                 ->select();
             if (count($data) == 0) {
                 throw new DataNotFoundException('数据不存在！');
