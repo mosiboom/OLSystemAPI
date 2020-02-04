@@ -136,7 +136,7 @@ class User extends Controller
         try {
             $user_id = Request::post('id');
             $status = Request::post('status');
-            if (!isset($user_id) || !in_array($status, [0, 1])) throw new \RuntimeException('参数有误！');
+            if (!isset($user_id) || !in_array($status, [1, 2])) throw new \RuntimeException('参数有误！');
             $data = [
                 'open_id' => $user_id,
                 'status' => $status
