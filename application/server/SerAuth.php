@@ -43,16 +43,17 @@ class SerAuth
     /**
      * 生成access_token接口
      * @param $uid
-     * @param $refresh_id
+     * @param string $iss //签发者身份
+     * @param string $refresh_id
      * @param bool $return_jti 是否返回jti
      * @return string | array
-     * */
-    public static function makeAccessToken($uid, $refresh_id, $return_jti = false)
+     */
+    public static function makeAccessToken($uid, $iss = 'Jasper', $refresh_id = '', $return_jti = false)
     {
         $jti = md5(uniqid('JWT') . time());
         $exp = self::loadConf('access_token_expire_time');
         $data = array(
-            'iss' => 'Jasper', //该JWT的签发者
+            'iss' => $iss, //该JWT的签发者
             'iat' => time(), //签发时间
             'exp' => time() + $exp, //过期时间
             'nbf' => time() + 10, //该时间之前不接收处理该Token
@@ -98,8 +99,14 @@ class SerAuth
         return SerJwtToken::getToken($data);
     }
 
-    /*验证token*/
-    public static function verifyToken(string $token)
+    /**
+     * 验证token
+     * @param string $token
+     * @param bool $is_black 是否使用黑名单
+     * @param string $black_key 若使用黑名单则输入key
+     * @return array|bool|string
+     */
+    public static function verifyToken(string $token, $is_black = false, $black_key = '')
     {
         return SerJwtToken::verifyToken($token);
     }

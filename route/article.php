@@ -5,7 +5,7 @@ use think\facade\{Request, Route};
 
 /*前台*/
 Route::group('/article', function () {
-    Route::get('/get', 'getAll');
+    Route::get('/get', 'getAll')->middleware('auth');;
     Route::get('/detail', 'getOne');
     Route::get('/category', 'category');
     Route::get('/byCategory', 'byCategory');
