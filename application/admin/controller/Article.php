@@ -145,8 +145,8 @@ class Article extends Controller
                 $info = $this->categoryOne(false, $id);
                 if ($cover_url != $info['cover_url']) {
                     //封面不一样说明更换了封面
-                    if (!SerPublic::checkUploadURL($cover_url, 'picture'))
-                        throw new \RuntimeException('图片链接有误1！');
+                    /*if (!SerPublic::checkUploadURL($cover_url, 'picture'))
+                        throw new \RuntimeException('图片链接有误1！');*/
                     $cover_url = SerPublic::getWithoutTmp($cover_url);
                     if (!$cover_url) {
                         throw new \RuntimeException('图片链接有误2！');
@@ -158,8 +158,8 @@ class Article extends Controller
                 return SerPublic::ApiSuccess('');
             }
             /*添加*/
-            /*if (!SerPublic::checkUploadURL($cover_url, 'picture'))
-                throw new \RuntimeException('图片链接有误1！');*/
+            if (!SerPublic::checkUploadURL($cover_url, 'picture'))
+                throw new \RuntimeException('图片链接有误1！');
             $cover_url = SerPublic::getWithoutTmp($cover_url);
             if (!$cover_url) {
                 throw new \RuntimeException('图片链接有误2！');
