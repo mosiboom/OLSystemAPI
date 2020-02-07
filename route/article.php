@@ -16,9 +16,9 @@ Route::group('/article', function () {
 Route::group('/admin/article', function () {
     Route::get('/all', 'getAll');
     Route::get('/one', 'getOne');
-    Route::post('/insert', 'insert');
+    Route::post('/insert', 'save');
     Route::post('/delete', 'delete');
-    Route::post('/patch', 'save');
+    Route::post('/patch/:id', 'save');
     /*文章分类管理*/
     Route::get('/category/all', 'categoryAll');
     Route::get('/category/one', 'categoryOne');
