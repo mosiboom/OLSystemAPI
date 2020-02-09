@@ -5,6 +5,7 @@ namespace app\index\controller;
 use app\server\SerPublic;
 use think\Controller;
 use think\Db;
+use think\Exception;
 use think\facade\Request;
 
 class Script extends Controller
@@ -591,15 +592,24 @@ ScriptEngine engine = new ScriptEngineManager().getEngineByName("js");Object obj
 
     public function tmp()
     {
-        for ($i = 1; $i <= 3002; $i++) {
-            $rand = rand(1, 1000);
-            $user_id = $rand == 1000 ? 'o5nEd5EtCpel6kw-bQ9tCRCZOgO4' : $rand;
-            $_data = [
-                'id' => $i,
-                'user_id' => $user_id
-            ];
-            Db::table('section_comment')->update($_data);
+
+        $a = 0;
+        $up_data = [];
+        for ($i = 1; $i <= 900; $i++) {
+            $b = $a + 1;
+            $a = 5 * $i;//5
+            for ($j = $b; $j <= $a; $j++) {
+                $data = [
+                    'section_id' => $i,
+                    'id' => $j,
+                    'difficulty' => rand(1, 5)
+                ];
+                array_push($up_data, $data);
+            }
         }
+        $section = new \app\admin\model\Question();
+        $res = $section->saveAll($up_data);
+        if (!$res) throw new Exception('更新失败！');
     }
 
     public function tmpRandNick()
@@ -615,5 +625,58 @@ ScriptEngine engine = new ScriptEngineManager().getEngineByName("js");Object obj
         $nicheng = $nicheng_tou[$tou_num] . $nicheng_wei[$wei_num];
 
         return $nicheng; //输出生成的昵称
+    }
+
+    public function createQuestion()
+    {
+        $choose = [
+            [
+                'id' => 'A',
+                'info' => '汹猛洪涝，罕见冰雪，特大地震… … 当我们面对这一切的时候，不由生出多难兴邦的历史感慨。',
+                'is_right' => true
+            ],
+            [
+                'id' => 'B',
+                'info' => '集电话、电脑、相机、信用卡等功能于一体，这款新型手机在生活中的作用被发挥得酣畅淋漓。',
+                'is_right' => false
+            ],
+            [
+                'id' => 'C',
+                'info' => '现代社会信息量与时俱进，上网已成为追求时尚的当代中学生经常挂在嘴边的炙手可热的话题',
+                'is_right' => true
+            ],
+            [
+                'id' => 'D',
+                'info' => '英国的一项科学研究显示，播放古典音乐能促使食客情不自禁地慷慨解囊，从而增加酒店收入。',
+                'is_right' => false
+            ],
+            [
+                'id' => 'E',
+                'info' => '五月的西湖公园，姹紫嫣红，一片绚丽的景象。',
+                'is_right' => true
+            ],
+            [
+                'id' => 'F',
+                'info' => '登高远眺。青山如屏，绿水如带，令人心旷神怡。',
+                'is_right' => true
+            ],
+        ];
+        $choose = json_encode($choose);
+        $data = [
+            'title' => '选出下列成语使用正确的一项是',
+            'selected' => $choose,
+            'answer' => 'A,E,F',
+            'difficulty' => rand(1, 5),
+            'video_url' => '',
+            'question_type' => 1,
+            'section_id' => 1,
+            'answer_parsing' => '酣畅淋漓：形容非常畅快。
+炙手可热：比喻权势大，气焰盛，使人不敢接近。
+慷慨解囊：形容极其大方地在经济上帮助别人。
+酣畅淋漓适用于人，本处应该为“淋漓尽致”；炙手可热形容坏人当道，是贬义词；慷慨解囊为拿钱送人，不能买。
+',
+            'num' => '5'
+        ];
+        Db::table('question')->insert($data);
     }
 }

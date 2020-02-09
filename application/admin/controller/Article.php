@@ -23,7 +23,7 @@ class Article extends Controller
             $data = Db::table('article')
                 ->alias('a')
                 ->join('article_category ac', 'ac.id=a.cat_id')
-                ->order('hot', 'desc')
+                ->order('create_time', 'desc')
                 ->field('a.id,name as cat_name,hot,title,desc,create_time,update_time,author,a.cover_url,cat_id,a.status')
                 ->select();
             if (count($data) == 0) {
