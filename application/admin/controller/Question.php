@@ -1,6 +1,6 @@
 <?php
 
-namespace app\XXX\controller;
+namespace app\admin\controller;
 
 use app\server\SerPublic;
 use think\{Controller,
@@ -11,19 +11,70 @@ use think\{Controller,
     exception\DbException,
     facade\Request
 };
+use http\Exception\RuntimeException;
 
 class Question extends Controller
 {
     public function getAll()
     {
+        try {
+            $section_id = Request::get('section_id');
+            $data = Db::table('question')->where('section_id', $section_id)->selectOrFail();
+            return SerPublic::ApiSuccess($data);
+        } catch (\RuntimeException $e) {
+            return SerPublic::ApiJson('', 101, $e->getMessage());
+        } catch (DataNotFoundException $e) {
+            return SerPublic::ApiJson('', 3002, $e->getMessage());
+        } catch (ModelNotFoundException $e) {
+            return SerPublic::ApiJson('', 3002, $e->getMessage());
+        } catch (DbException $e) {
+            return SerPublic::ApiJson('', 3001, $e->getMessage());
+        } catch (\Exception $e) {
+            return SerPublic::ApiJson('', 3003, $e->getMessage());
+        }
     }
 
     public function getOne()
     {
+        try {
+            $id = Request::get('id');
+            $data = $this->info($id);
+            if (!$data) throw new DataNotFoundException('数据不存在！');
+            return SerPublic::ApiSuccess($data);
+        } catch (\RuntimeException $e) {
+            return SerPublic::ApiJson('', 101, $e->getMessage());
+        } catch (DataNotFoundException $e) {
+            return SerPublic::ApiJson('', 3002, $e->getMessage());
+        } catch (ModelNotFoundException $e) {
+            return SerPublic::ApiJson('', 3002, $e->getMessage());
+        } catch (DbException $e) {
+            return SerPublic::ApiJson('', 3001, $e->getMessage());
+        } catch (\Exception $e) {
+            return SerPublic::ApiJson('', 3003, $e->getMessage());
+        }
     }
 
     public function delete()
     {
+        try {
+            $id = Request::post('id');
+            if (!isset($id)) {
+                throw new \RuntimeException('参数有误！');
+            }
+            $res = Db::table('question')->where('id', $id)->delete();
+            if (!$res) throw new DataNotFoundException('删除失败！');
+            return SerPublic::ApiSuccess();
+        } catch (\RuntimeException $e) {
+            return SerPublic::ApiJson('', 101, $e->getMessage());
+        } catch (DataNotFoundException $e) {
+            return SerPublic::ApiJson('', 3002, $e->getMessage());
+        } catch (ModelNotFoundException $e) {
+            return SerPublic::ApiJson('', 3002, $e->getMessage());
+        } catch (DbException $e) {
+            return SerPublic::ApiJson('', 3001, $e->getMessage());
+        } catch (\Exception $e) {
+            return SerPublic::ApiJson('', 3003, $e->getMessage());
+        }
     }
 
     public function insert()
@@ -48,7 +99,7 @@ class Question extends Controller
                     throw new \RuntimeException('参数有误！');
                 $data = [
                     'title' => $title,
-                    'selected' => $selected,
+                    'selected' => json_encode($selected),
                     'answer' => $answer,
                     'difficulty' => $difficulty,
                     'video_url' => $video_url,
@@ -108,7 +159,7 @@ class Question extends Controller
                 $data = [
                     'id' => $id,
                     'title' => $title,
-                    'selected' => $selected,
+                    'selected' => json_encode($selected),
                     'answer' => $answer,
                     'difficulty' => $difficulty,
                     'video_url' => $video_url,
