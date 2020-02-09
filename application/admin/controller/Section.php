@@ -105,8 +105,8 @@ class Section extends Controller
                     'diffcult_point' => $diffcult_point
                 ];
                 if ($video_url != '') { //如果有视频
-                    if (!SerPublic::checkUploadURL($video_url, 'video'))
-                        throw new \RuntimeException('视频链接有误1！');
+                    /*if (!SerPublic::checkUploadURL($video_url, 'video'))
+                        throw new \RuntimeException('视频链接有误1！');*/
                     $video_url = SerPublic::getWithoutTmp($video_url);
                     if (!$video_url) {
                         throw new \RuntimeException('视频链接有误2！');
@@ -165,8 +165,8 @@ class Section extends Controller
                 if ($video_url != '') {
                     if ($video_url != $info['video_url']) {
                         //链接不一样说明更换了链接
-                        if (!SerPublic::checkUploadURL($video_url, 'video'))
-                            throw new \RuntimeException('视频链接有误1！');
+                        /*if (!SerPublic::checkUploadURL($video_url, 'video'))
+                            throw new \RuntimeException('视频链接有误1！');*/
                         $video_url = SerPublic::getWithoutTmp($video_url);
                         if (!$video_url) {
                             throw new \RuntimeException('视频链接有误2！');
