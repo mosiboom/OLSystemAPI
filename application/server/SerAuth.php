@@ -48,7 +48,7 @@ class SerAuth
      * @param bool $return_jti 是否返回jti
      * @return string | array
      */
-    public static function makeAccessToken($uid, $iss = 'Jasper', $refresh_id = '', $return_jti = false)
+    public static function makeAccessToken($uid, $iss = 'Jasper', $return_jti = false, $refresh_id = '')
     {
         $jti = md5(uniqid('JWT') . time());
         $exp = self::loadConf('access_token_expire_time');

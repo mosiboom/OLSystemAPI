@@ -18,4 +18,4 @@ Route::group('/admin/course', function () {
     Route::post('/insert', 'save');
     Route::post('/delete', 'delete');
     Route::post('/patch/:id', 'save');
-})->prefix('admin/Course/');
+})->prefix('admin/Course/')->middleware('admin');

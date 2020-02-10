@@ -23,5 +23,5 @@ Route::group('/admin/article', function () {
     Route::get('/category/all', 'categoryAll');
     Route::get('/category/one', 'categoryOne');
     Route::post('/category/save', 'categorySave');
-    Route::post('/category/delete','categoryDelete');
-})->prefix('admin/Article/');
+    Route::post('/category/delete', 'categoryDelete');
+})->prefix('admin/Article/')->middleware('admin');

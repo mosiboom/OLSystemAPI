@@ -11,4 +11,4 @@ Route::group('/admin/question', function () {
     Route::post('/insert', 'insert');
     Route::post('/delete', 'delete');
     Route::post('/patch', 'save');
-})->prefix('admin/Question/');
+})->prefix('admin/Question/')->middleware('admin');
