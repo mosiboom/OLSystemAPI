@@ -50,7 +50,7 @@ class Course extends Controller
             $id = Request::get('course_id');
             if (!isset($id)) throw new \RuntimeException('参数有误');
             $data['course'] = Db::table('course')->where('id', $id)->findOrFail();
-            $data['section'] = Db::table('section')->where('course_id', $id)->select();
+            $data['section'] = Db::table('section')->field('content',true)->where('course_id', $id)->select();
             return SerPublic::ApiSuccess($data);
         } catch (\RuntimeException $e) {
             return SerPublic::ApiJson('', 101, $e->getMessage());
