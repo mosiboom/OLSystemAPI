@@ -6,7 +6,7 @@ use think\facade\{Request, Route};
 /*前台*/
 Route::group('/question', function () {
     Route::get('/get', 'getAll');
-    Route::get('/detail', 'getOne');
+    Route::post('/insertScore', 'insertScore')->middleware('auth');
 })->prefix('index/Question/');
 
 /*管理员后台*/
