@@ -3,6 +3,11 @@
 
 use think\facade\{Request, Route};
 
+/*前台*/
+Route::group('/question', function () {
+    Route::get('/get', 'getAll');
+    Route::get('/detail', 'getOne');
+})->prefix('index/Question/');
 
 /*管理员后台*/
 Route::group('/admin/question', function () {
