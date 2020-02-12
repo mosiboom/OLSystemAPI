@@ -2,6 +2,7 @@
 
 namespace app\admin\controller;
 
+use app\admin\model\SectionComment;
 use app\server\SerPublic;
 use think\{Controller,
     Db,
@@ -66,15 +67,15 @@ class Course extends Controller
         try {
             $id = Request::post('id');
             if (!isset($id)) throw new \RuntimeException('参数有误');
-
             Db::transaction(function () use ($id) {
-                $res1 = Db::table('course')->where('id', $id)->delete();
+                Db::table('course')->where('id', $id)->delete();
+                $section_id_arr = Db::table('section')->where('course_id', $id)->column('id');
                 Db::table('section')->where('course_id', $id)->delete();
-                if (!$res1) {
-                    throw new DataNotFoundException('删除失败！');
-                }
+                /*删除小节评论小节下的问题*/
+                Db::table('section_comment')->where(['section_id' => $section_id_arr])->delete();
+                Db::table('question')->where(['section_id' => $section_id_arr])->delete();
+                Db::table('question_score')->where(['section_id' => $section_id_arr])->delete();
             });
-
             return SerPublic::ApiSuccess();
         } catch (\RuntimeException $e) {
             return SerPublic::ApiJson('', 101, $e->getMessage());

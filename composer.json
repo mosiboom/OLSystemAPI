@@ -22,7 +22,8 @@
         "ext-curl": "*",
       "ext-http": "*",
       "ext-iconv": "*",
-      "ext-calendar": "*"
+      "ext-calendar": "*",
+      "ext-mbstring": "*"
     },
     "autoload": {
         "psr-4": {

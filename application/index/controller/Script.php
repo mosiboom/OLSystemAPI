@@ -78,7 +78,7 @@ class Script extends Controller
     public function ImoocSection()
     {
         require_once 'SerSimpleHtmlDom.php';
-        $html1 = new simple_html_dom();
+        /*$html1 = new simple_html_dom();
 
         $return1 = postRaw('https://www.imooc.com/course/list?sort=pop', '');
         $html1->load($return1);
@@ -117,7 +117,8 @@ class Script extends Controller
         }
         //dump($all_data);
         $res = Db::table('section')->insertAll($all_data);
-        dump($res);
+        dump($res);*/
+
     }
 
     /*随机有没有视频*/

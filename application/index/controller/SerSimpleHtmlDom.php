@@ -1048,7 +1048,7 @@ class simple_html_dom_node
 				&& ($this->is_utf8($text))) {
 				$converted_text = $text;
 			} else {
-				$converted_text = iconv($sourceCharset, $targetCharset, $text);
+				$converted_text = iconv('GBK', 'UTF-8', $text);
 			}
 		}
 

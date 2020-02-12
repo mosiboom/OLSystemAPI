@@ -85,6 +85,34 @@ class Article extends Controller
 
     public function delete()
     {
+        try {
+            $id = Request::post('id');
+            if (!isset($id)) {
+                throw new \RuntimeException('参数有误！');
+            }
+            // 启动事务
+            Db::startTrans();
+            try {
+                Db::table('article')->where('id', $id)->delete();
+                Db::table('article_comment')->where('article_id', $id)->delete();
+                // 提交事务
+                Db::commit();
+            } catch (\Exception $e) {
+                // 回滚事务
+                Db::rollback();
+            }
+            return SerPublic::ApiSuccess();
+        } catch (\RuntimeException $e) {
+            return SerPublic::ApiJson('', 101, $e->getMessage());
+        } catch (DataNotFoundException $e) {
+            return SerPublic::ApiJson('', 3002, $e->getMessage());
+        } catch (ModelNotFoundException $e) {
+            return SerPublic::ApiJson('', 3002, $e->getMessage());
+        } catch (DbException $e) {
+            return SerPublic::ApiJson('', 3001, $e->getMessage());
+        } catch (\Exception $e) {
+            return SerPublic::ApiJson('', 3003, $e->getMessage());
+        }
     }
 
     public function insert()
