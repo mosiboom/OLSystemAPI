@@ -24,4 +24,4 @@ Route::group('/admin/article', function () {
     Route::get('/category/one', 'categoryOne');
     Route::post('/category/save', 'categorySave');
     Route::post('/category/delete', 'categoryDelete');
-})->prefix('admin/Article/')->middleware('admin');
+})->prefix('admin/Article/')->allowCrossDomain()->middleware('admin');

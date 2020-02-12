@@ -8,4 +8,4 @@ Route::group('/common', function () {
     Route::post('/upload/video', 'common/uploadVideo');
     /*上传图片文件接口*/
     Route::post('/upload/picture', 'common/uploadPicture');
-})->middleware('admin');
+})->allowCrossDomain()->middleware('admin');

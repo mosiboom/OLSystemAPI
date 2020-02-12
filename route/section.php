@@ -25,4 +25,4 @@ Route::group('/admin/section', function () {
     Route::post('/insert', 'insert');
     Route::post('/delete', 'delete');
     Route::post('/patch', 'save');
-})->prefix('admin/Section/')->middleware('admin');
+})->prefix('admin/Section/')->allowCrossDomain()->middleware('admin');

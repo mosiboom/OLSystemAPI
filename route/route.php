@@ -12,5 +12,5 @@ Route::post('/token/refresh', 'login/refresh');
 /*管理员登录*/
 Route::group('/admin',function (){
     Route::post('/login','login');
-    Route::post('/logout','logout')->middleware('admin');
+    Route::post('/logout','logout')->allowCrossDomain()->middleware('admin');
 })->prefix('admin/Login/');

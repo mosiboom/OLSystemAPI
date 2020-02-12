@@ -17,4 +17,4 @@ Route::group('/admin/question', function () {
     Route::post('/insert', 'insert');
     Route::post('/delete', 'delete');
     Route::post('/patch', 'save');
-})->prefix('admin/Question/')->middleware('admin');
+})->prefix('admin/Question/')->allowCrossDomain()->middleware('admin');

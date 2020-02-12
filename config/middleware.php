@@ -17,4 +17,5 @@ return [
     'default_namespace' => 'app\\http\\middleware\\',
     'auth' => app\http\middleware\AuthUser::class,
     'admin' => app\http\middleware\AuthAdmin::class,
+    'cross'=>\app\http\middleware\CrossDomain::class
 ];

@@ -8,4 +8,4 @@ Route::group('/admin/user', function () {
     Route::get('/all', 'getAll');
     Route::get('/one', 'getOne');
     Route::post('/status', 'status');
-})->prefix('admin/User/')->middleware('admin');
+})->prefix('admin/User/')->allowCrossDomain()->middleware('admin');
