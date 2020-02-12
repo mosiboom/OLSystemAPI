@@ -61,10 +61,13 @@ class Section extends Controller
         try {
             $id = Request::post('id');
             if (!isset($id)) throw new \RuntimeException('参数有误');
-            $res = Db::table('section')->where('id', $id)->delete();
-            if (!$res) {
-                throw new DataNotFoundException('删除失败！');
-            }
+            Db::transaction(function () use ($id) {
+                Db::table('section')->where('id', $id)->delete();
+                /*删除小节评论小节下的问题*/
+                Db::table('section_comment')->where(['section_id' => $id])->delete();
+                Db::table('question')->where(['section_id' => $id])->delete();
+                Db::table('question_score')->where(['section_id' => $id])->delete();
+            });
             return SerPublic::ApiSuccess();
         } catch (\RuntimeException $e) {
             return SerPublic::ApiJson('', 101, $e->getMessage());
