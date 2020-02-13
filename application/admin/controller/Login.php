@@ -31,10 +31,10 @@ class Login extends Controller
             $redis = new Redis();
             $time = time();
             $data = $redis->get("admin_login_{$info['id']}");
-            if ($data) {
+            /*if ($data) {
                 $data = json_decode($data, true);
                 if ($time - $data['time'] < 120) throw new \RuntimeException('操作频繁，请2分钟后再试！');
-            }
+            }*/
             $token = SerAuth::makeAccessToken($info['id'], 'Jasper_Admin');
             $redis->set("admin_login_{$info['id']}", json_encode(['token' => $token, 'time' => time()]));
             return SerPublic::ApiSuccess(['token' => $token]);
