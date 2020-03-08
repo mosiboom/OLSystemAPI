@@ -10,6 +10,7 @@ class SerPublic
     /*api返回数据*/
     public static function ApiJson($data, int $code, string $msg): string
     {
+
         $return = array(
             'data' => $data,
             'error' => array(

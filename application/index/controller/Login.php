@@ -7,6 +7,7 @@ use app\server\SerPublic;
 use think\Db;
 use think\Exception;
 use think\exception\PDOException;
+use think\facade\Env;
 use think\facade\Request;
 
 class Login
@@ -21,8 +22,8 @@ class Login
                 throw new \RuntimeException('参数有误');
             }
 
-            $wechat_appid = "wx9d981291d7f9dd89";
-            $wechat_secret = "a944f7b6d01249376db4c81ba7c50e6c";
+            $wechat_appid = Env::get('wechat_app_id');
+            $wechat_secret = Env::get('wechat_app_key');
             $param = array(
                 'js_code' => $code,
                 'appid' => $wechat_appid,
